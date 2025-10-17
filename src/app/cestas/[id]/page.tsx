@@ -1,263 +1,381 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useMemo } from 'react';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { StarIcon, 
-    ShareIcon, 
-    HeartIcon, 
-    ChatBubbleBottomCenterIcon } from '@heroicons/react/24/outline';
+import {
+  StarIcon,
+} from '@heroicons/react/24/outline';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Acao from '@/components/Acao';
+import { db } from '@/lib/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+import { Cesta } from '@/types/cesta';
+import { useCart } from "@/contexts/CartContext";
 
-
-// Dados fictícios – substitua por chamada à API ou props do servidor
-const product = {
-  id: '1',
-  name: 'Cesta Orgânica Premium',
-  rating: 4.8,
-  reviewCount: 124,
-  price: 189.9,
-  description: 'Uma seleção cuidadosa de frutas, legumes e verduras orgânicos da estação, colhidos na véspera para garantir frescor e sabor.',
-  videoUrl: '/videos/cesta-demo.mp4',
-  images: [
-    '/images/p1.png',
-    '/images/p1.png',
-    '/images/p1.png',
-  ],
-  items: [
-    'Maçã Fuji',
-    'Banana Prata',
-    'Tomate Orgânico',
-    'Alface Crespa',
-    'Cenoura',
-    'Laranja Pera',
-  ],
-  nutritionalInfo: {
-    calories: 'Baixo teor calórico',
-    origin: 'Produção local – Serra Gaúcha',
-    certification: 'Certificação Orgânica IBD',
-  },
-};
-
-export default function ProductDetailPage() {
-  const router = useRouter();
-  const [mainMedia, setMainMedia] = useState<string | null>(product.videoUrl);
+export default function CestaDetailPage() {
+  const params = useParams();
+  const id = params?.id as string | undefined;
+  const [selectedFormat, setSelectedFormat] = useState<'cesta' | 'maleta' | 'bandeja'>('cesta');
+  const [cesta, setCesta] = useState<Cesta | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [mainMedia, setMainMedia] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const { addToCart } = useCart();
 
+  useEffect(() => {
+    if (!id) {
+      setError('ID da cesta não especificado.');
+      setLoading(false);
+      return;
+    }
+
+    const fetchCesta = async () => {
+      try {
+        const docRef = doc(db, 'cestas', id);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+          setError('Cesta não encontrada.');
+          return;
+        }
+
+        const data = docSnap.data();
+
+        // ✅ Monta os dados com segurança
+        const cestaData: Cesta = {
+          id: docSnap.id,
+          title: typeof data.title === 'string' ? data.title : 'Cesta sem nome',
+          price: typeof data.price === 'number' ? data.price : 0,
+          rating: typeof data.rating === 'number' ? data.rating : 0,
+          reviewCount: typeof data.reviewCount === 'number' ? data.reviewCount : 0,
+          description: typeof data.description === 'string'
+            ? data.description
+            : 'Descrição não disponível.',
+          video: typeof data.video === 'string' ? data.video : undefined,
+          image: Array.isArray(data.image)
+            ? data.image.filter(img => typeof img === 'string')
+            : ['/images/p1.png'],
+          items: Array.isArray(data.items)
+            ? data.items.filter(item => typeof item === 'string')
+            : ['Item não informado'],
+          nutritionalInfo: {
+            calories: typeof data.nutritionalInfo?.calories === 'string'
+              ? data.nutritionalInfo.calories
+              : 'Não informado',
+            origin: typeof data.nutritionalInfo?.origin === 'string'
+              ? data.nutritionalInfo.origin
+              : 'Não informado',
+            certification: typeof data.nutritionalInfo?.certification === 'string'
+              ? data.nutritionalInfo.certification
+              : 'Não informado',
+          },
+          formatOptions: {
+            cesta: typeof data.formatOptions?.cesta === 'number' ? data.formatOptions.cesta : 0,
+            maleta: typeof data.formatOptions?.maleta === 'number' ? data.formatOptions.maleta : 0,
+            bandeja: typeof data.formatOptions?.bandeja === 'number' ? data.formatOptions.bandeja : 0,
+          },
+        };
+
+        setCesta(cestaData);
+        setMainMedia(cestaData.video || null);
+      } catch (err) {
+        console.error('Erro ao carregar cesta:', err);
+        setError('Não foi possível carregar os detalhes da cesta.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCesta();
+  }, [id]);
+
+  // ✅ Atualiza mídia principal ao clicar nas miniaturas
   const handleThumbnailClick = (index: number) => {
-    setMainMedia(null); // Garante que o vídeo não fique travado
     setSelectedImageIndex(index);
+    setMainMedia(null); // volta à imagem principal
   };
 
+  // ✅ Usa useMemo para performance
+  const finalPrice = useMemo(() => {
+    if (!cesta) return 0;
+    const basePrice = cesta.price;
+    const extra = cesta.formatOptions?.[selectedFormat] ?? 0;
+    return basePrice + extra;
+  }, [cesta, selectedFormat]);
+
+  // ✅ Adicionar ao carrinho
+const handleAddToCart = () => {
+  if (!cesta) return;
+
+  const productForCart = {
+    id: cesta.id,
+    title: cesta.title,
+    price: finalPrice,
+    image: Array.isArray(cesta.image) ? cesta.image[0] : cesta.image,
+  };
+
+  addToCart(productForCart);
+};
+
+
+  // Estado: Carregando
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header />
+        <main className="flex-grow flex items-center justify-center pt-24">
+          <p className="text-gray-600">Carregando cesta...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Estado: Erro
+  if (error || !cesta) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header />
+        <main className="flex-grow flex flex-col items-center justify-center pt-24 px-4 text-center">
+          <p className="text-red-600 mb-4">{error || 'Cesta não encontrada.'}</p>
+          <Link
+            href="/cestas"
+            className="text-red-900 hover:underline font-medium flex items-center gap-1"
+          >
+            ← Voltar para as cestas
+          </Link>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // ✅ Renderização principal
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-        {/* Header fixo */}
-        <Header /> 
-        {/* Breadcrumb */}
-        
-        <main className="flex-grow px-4 p-6 space-y-6 pt-24 pb-8 sm:pt-28 sm:pb-12">
-           <Link href="/cestas" className="hover:underline mt-4 font-bold text-3xl">←</Link>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* LADO ESQUERDO - Galeria */}
-        <div className="flex flex-row gap-4">
-            {/* Miniaturas vertical */}
-            <div className="flex flex-col gap-3">
-            {/* Vídeo */}
-            <button
-                onClick={() => setMainMedia(product.videoUrl)}
-                className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                mainMedia ? 'border-green-500' : 'border-transparent'
-                }`}
-            >
-                <div className="bg-black text-white text-xs flex items-center justify-center w-full h-full">
-                ▶️
-                </div>
-            </button>
+      <Header />
 
-            {/* Imagens */}
-            {product.images.map((img, idx) => (
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 py-6 pt-24 sm:pt-28 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          {/* Galeria */}
+          <div className="flex flex-row gap-4">
+            <div className="flex flex-col gap-3">
+              {/* Vídeo */}
+              {cesta.video && (
                 <button
-                key={idx}
-                onClick={() => handleThumbnailClick(idx)}
-                className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                    !mainMedia && selectedImageIndex === idx
-                    ? 'border-green-500'
-                    : 'border-transparent'
-                }`}
+                  onClick={() => setMainMedia(cesta.video!)}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
+                    mainMedia === cesta.video ? 'border-green-500' : 'border-transparent'
+                  }`}
                 >
-                <Image
+                  <div className="bg-black text-white text-xs flex items-center justify-center w-full h-full">
+                    ▶️
+                  </div>
+                </button>
+              )}
+
+              {/* Miniaturas */}
+              {cesta.image.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleThumbnailClick(idx)}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
+                    !mainMedia && selectedImageIndex === idx
+                      ? 'border-green-500'
+                      : 'border-transparent'
+                  }`}
+                >
+                  <Image
                     src={img}
                     alt={`Thumbnail ${idx + 1}`}
                     width={64}
                     height={64}
                     className="object-cover w-full h-full"
-                />
+                  />
                 </button>
-            ))}
+              ))}
             </div>
 
-            {/* Mídia Principal */}
+            {/* Mídia principal */}
             <div className="bg-gray-100 rounded-xl flex items-center justify-center w-full max-w-[500px] max-h-[425px]">
-            {mainMedia ? (
+              {mainMedia ? (
                 <video
-                src={mainMedia}
-                controls
-                className="w-full h-full object-contain rounded-xl"
-                poster={product.images[0]}
+                  src={mainMedia}
+                  controls
+                  className="w-full h-full object-contain rounded-xl"
+                  poster={cesta.image[0]}
                 />
-            ) : (
+              ) : (
                 <Image
-                src={product.images[selectedImageIndex]}
-                alt={product.name}
-                width={400}
-                height={400}
-                className="object-contain w-full h-full"
+                  src={cesta.image[selectedImageIndex]}
+                  alt={cesta.title}
+                  width={400}
+                  height={400}
+                  className="object-contain w-full h-full"
                 />
-            )}
+              )}
             </div>
+          </div>
+
+          {/* Informações da cesta */}
+          <div className="flex flex-col gap-4">
+            <h1 className="text-3xl font-bold text-gray-900">{cesta.title}</h1>
+
+            {/* Avaliações */}
+            <div className="flex items-center">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <StarIcon
+                    key={i}
+                    className={`h-5 w-5 ${
+                      i < Math.floor(cesta.rating) ? 'text-yellow-400' : 'text-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="ml-2 text-gray-600">
+                {cesta.rating} ({cesta.reviewCount} avaliações)
+              </span>
+            </div>
+
+            <p className="text-gray-700">{cesta.description}</p>
+
+            {/* Seleção de formato */}
+            <div>
+              <h2 className="font-semibold text-lg text-gray-800 mb-2">
+                Escolha o formato da cestaria:
+              </h2>
+              <div className="flex flex-wrap gap-4">
+                {(['cesta', 'maleta', 'bandeja'] as const).map((format) => {
+                  const label = format === 'cesta' ? 'Cesta' :
+                                format === 'maleta' ? 'Maleta' : 'Bandeja';
+                  const extra = cesta?.formatOptions?.[format] ?? 0;
+
+                  return (
+                    <label
+                      key={format}
+                      className={`flex items-center border rounded-lg px-3 py-2 cursor-pointer transition ${
+                        selectedFormat === format
+                          ? 'border-red-500 bg-red-50'
+                          : 'border-gray-300 hover:border-red-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="format"
+                        checked={selectedFormat === format}
+                        onChange={() => setSelectedFormat(format)}
+                        className="sr-only"
+                      />
+                      <span className="text-gray-700 font-medium">{label}</span>
+                      {extra > 0 && (
+                        <span className="ml-2 text-sm text-green-600">+ R$ {extra.toFixed(2)}</span>
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Preço final */}
+            <p className="text-2xl font-bold text-red-900">
+              VALOR: R$ {finalPrice.toFixed(2)}
+            </p>
+
+            {/* Info de envio */}
+            <div className="p-4 bg-red-50 rounded-lg">
+              <h3 className="font-medium text-red-900">Envio pelos Correios/Transportadoras:</h3>
+              <ul className="mt-2 text-sm text-gray-700 space-y-1">
+                <li>• Apenas maletas e produtos não perecíveis</li>
+                <li>• Outras opções disponíveis via delivery</li>
+              </ul>
+            </div>
+          </div>
         </div>
 
-                    {/* LADO DIREITO - Informações do produto */}
-                    <div className="flex flex-col gap-1">
-                        <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-                        {/* Avaliação */}
-                        <div className="flex items-center mt-2">
-                        <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                            <StarIcon
-                                key={i}
-                                className={`h-5 w-5 ${
-                                i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'
-                                }`}
-                            />
-                            ))}
-                        </div>
-                        <span className="ml-2 text-gray-600">
-                            {product.rating} ({product.reviewCount} avaliações)
-                        </span>
-                        </div>
-
-                        {/* Descrição */}
-                        <p className="mt-2 text-gray-700">{product.description}</p>
-
-                        {/* Formato da Cestaria */}
-                        <div className="mt-4">
-                        <h2 className="font-semibold text-lg text-gray-800 mb-2">
-                            Escolha o formato da cestaria:
-                        </h2>
-                        <div className="flex flex-wrap gap-4">
-                            {['Maleta', 'Bandeja', 'Cesta'].map((format) => (
-                            <label
-                                key={format}
-                                className="flex items-center border rounded-lg px-3 py-2 cursor-pointer hover:border-red-500 transition"
-                            >
-                                <input
-                                type="checkbox"
-                                className="mr-2 h-4 w-4 text-red-900 rounded focus:ring-red-500"
-                                />
-                                <span className="text-gray-700">{format}</span>
-                            </label>
-                            ))}
-                        </div>
-                        </div>
-
-                        {/* Preço */}
-                        <p className="text-2xl font-bold text-red-900 mt-4">
-                        VALOR: R$ {product.price.toFixed(2)}
-                        </p>
-                                        <div className="mt-6 p-4 bg-red-50 rounded-lg">
-                                        <h3 className="font-medium text-red-900">Envio pelos Correios/Transportadoras:</h3>
-                                        <ul className="mt-2 text-sm text-gray-700 space-y-1">
-                                        <li>• Apenas maletas e produtos não pereciveis</li>
-                                        <li>• Outars opções disponiveis via delivery</li>
-                                        </ul>
-                                    </div>
-                    </div>
-        </div>
-        <div className="w-full flex flex-col lg:flex-row gap-4 mt-6">
-        {/* Itens da Cesta */}
-        <div className="flex-1 border border-gray-200 rounded-lg p-4">
-            <h2 className="font-semibold text-lg text-gray-800 mb-2">Itens:</h2>
-            <ul className="space-y-1">
-            {product.items.map((item, idx) => (
-                <li key={idx} className="flex items-center">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
-                {item}
+        {/* Itens e avaliações */}
+        <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="border border-gray-200 rounded-lg p-5">
+            <h2 className="font-semibold text-lg text-gray-800 mb-3">Itens inclusos:</h2>
+            <ul className="space-y-2">
+              {cesta.items.map((item, idx) => (
+                <li key={idx} className="flex items-start">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span>{item}</span>
                 </li>
-            ))}
+              ))}
             </ul>
-            <h3 className="font-medium text-green-800 mb-2">Informações adicionais</h3>
+
+            <h3 className="font-medium text-green-800 mt-4 mb-2">Informações adicionais</h3>
             <ul className="text-sm text-gray-700 space-y-1">
-            <li>• {product.nutritionalInfo.calories}</li>
-            <li>• {product.nutritionalInfo.origin}</li>
-            <li>• {product.nutritionalInfo.certification}</li>
+              <li>• {cesta.nutritionalInfo.calories}</li>
+              <li>• {cesta.nutritionalInfo.origin}</li>
+              <li>• {cesta.nutritionalInfo.certification}</li>
             </ul>
-            <button className="border mt-2 bg-red-900 text-white w-full border-gray-300 hover:bg-red-900 justify-center py-3 rounded-full flex items-center gap-2">
-                <ChatBubbleBottomCenterIcon className="h-5 w-5" />
-                    Personalizar cesta
-            </button>
-        </div>
 
-            {/* Avaliações dos Clientes (opcional) */}
-            <div className="flex-1 border border-gray-200 rounded-lg p-4">
-                    <h2 className="font-semibold text-lg text-gray-800 mb-2">Avaliações (20)</h2>
-                        <div className="space-y-6">
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className=" pb-6">
-                            <div className="flex items-center">
-                                <div className="font-medium">Cliente {i}</div>
-                                <div className="ml-4 flex">
-                                {[...Array(5)].map((_, j) => (
-                                    <StarIcon
-                                    key={j}
-                                    className="h-4 w-4 text-yellow-400"
-                                    />
-                                ))}
-                                </div>
-                            </div>
-                            <p className="mt-2 text-gray-600">
-                                Cesta chegou fresquíssima! Recomendo muito para quem busca qualidade e praticidade.
-                            </p>
-                            </div>
-                        ))}
-                        </div>
+            <div className="mt-6 space-y-4">
+              <Link href={`/cestas/personalizar/${id}`} className="block">
+                <button className="w-full bg-red-900 text-white py-3 rounded-full font-semibold hover:bg-red-800 transition">
+                  Personalizar cesta
+                </button>
+              </Link>
 
+              <button
+                onClick={handleAddToCart}
+                className="w-full font-semibold border-2 border-red-900 text-red-900 py-3 rounded-full hover:bg-red-50 transition flex justify-center items-center gap-2"
+              >
+                <svg
+                  className="w-6 h-6 text-red-900"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6m0 0h9"
+                  />
+                </svg>
+                Adicionar ao carrinho
+              </button>
             </div>
-        </div>
-        {/* Botões de Ação */}
-        <div className="w-full flex flex-col justify-center lg:flex-row gap-4 mt-6">
-            <div className="flex-1 border item-center  border-gray-200 rounded-lg p-4">
-                <h2 className="font-semibold text-lg text-gray-800 mb-2">Experiência e Compartilhamento</h2>
-                <button 
-                 onClick={() => router.push("/cestas/personalizar")}
-                className="border  w-full border-gray-300 hover:bg-red-800 justify-center py-3 rounded-full flex items-center gap-2">
-                    <ChatBubbleBottomCenterIcon className="h-5 w-5" />
-                        Ver em 3D + VR
-                </button>
-                <button className="border mt-2 w-full border-gray-300 hover:bg-gray-50 justify-center py-3 rounded-full flex items-center gap-2">
-                    <ShareIcon className="h-5 w-5" />
-                        Compartilhar
-                </button>
-            </div> 
+          </div>
 
-            <div className="flex-1 border border-gray-200 rounded-lg gap-2 p-4">
-                <h2 className="font-semibold text-lg text-gray-800 mb-2">Envio e Indicação</h2>
-                <button className="border  w-full border-gray-300 hover:bg-gray-50 justify-center py-3 rounded-full flex items-center gap-2">
-                    <HeartIcon className="h-5 w-5" />
-                         Indicar
-                </button>
-                <button className="border mt-2 w-full border-gray-300 hover:bg-gray-50 justify-center py-3 rounded-full flex items-center gap-2">
-                    <ChatBubbleBottomCenterIcon className="h-5 w-5" />
-                        Convidar
-               </button>
+          {/* Avaliações */}
+          <div className="border border-gray-200 rounded-lg p-5">
+            <h2 className="font-semibold text-lg text-gray-800 mb-3">
+              Avaliações ({cesta.reviewCount})
+            </h2>
+            <div className="space-y-5">
+              {[1, 2].map((i) => (
+                <div key={i} className="pb-4 border-b border-gray-100 last:border-0">
+                  <div className="flex items-center">
+                    <span className="font-medium">Cliente {i}</span>
+                    <div className="ml-3 flex">
+                      {[...Array(5)].map((_, j) => (
+                        <StarIcon key={j} className="h-4 w-4 text-yellow-400" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="mt-2 text-gray-600">
+                    Cesta fresquíssima e linda! Chegou perfeita para o presente.
+                  </p>
+                </div>
+              ))}
             </div>
+          </div>
         </div>
-        </main>
 
-        {/* Footer */}
-        <Footer />
+        {/* Ações */}
+        <Acao />
+      </main>
+
+      <Footer />
     </div>
   );
 }

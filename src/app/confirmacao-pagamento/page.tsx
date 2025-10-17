@@ -1,5 +1,5 @@
 'use client';
-import { useRouter, useParams } from "next/navigation";
+import { useRouter} from "next/navigation";
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -10,25 +10,12 @@ import { CheckIcon } from '@heroicons/react/24/outline';
 
 export default function ConfirmacaoPage() {
   const router = useRouter();
-  const params = useParams(); 
-  const id = params.id as string; 
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
 
-      <main className="flex-1 container mx-auto px-4 py-10">
-        {/* Voltar */}
-        <div className="flex items-center mb-6">
-          <Link
-            href={`/cestas/${id}`}
-            className="text-red-900 hover:underline flex items-center"
-          >
-            ← Voltar para detalhes
-          </Link>
-        </div>
-
-
+      <main className="flex-grow sm:px-16 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
 
         {/* Card principal */}
         <div className="bg-white rounded-2xl shadow-md p-8 space-y-8 max-w-lg mx-auto">
@@ -96,11 +83,13 @@ export default function ConfirmacaoPage() {
                 <Image src="/images/facebook.svg" alt="Facebook" width={30} height={30} />
               </button>
               <button className="border border-gray-300 rounded-full p-2 hover:bg-gray-100 transition">
-                <Image src="/images/instagram.svg" alt="Instagram" width={30} height={30} />
-              </button>
-              <button className="border border-gray-300 rounded-full p-2 hover:bg-gray-100 transition">
                 <Image src="/images/tiktok.svg" alt="Google" width={30} height={30} />
               </button>
+            <Link
+              href="https://www.instagram.com/mimomeueseu/"
+              className="border border-gray-300 rounded-full p-2 hover:bg-gray-100 transition"
+              ><Image src="/images/instagram.svg" alt="Instagram" width={30} height={30} />
+            </Link>
             </div>
           </div>
 

@@ -91,15 +91,15 @@ export default function WelcomePage() {
           className="w-full bg-red-900 py-4 px-3 text-[#FCE1D0] font-semibold rounded-full hover:bg-red-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FCE1D0] focus:ring-opacity-50"
           aria-label="Entrar na sua conta"
         >
-          Entrar na sua conta
+          Entrar
         </button>
 
         <button
-          onClick={() => (window.location.href = "/auth/register")}
+          onClick={() => (window.location.href = "/home")}
           className="w-full border border-red-900 py-4 px-3 text-red-900 font-semibold rounded-full hover:bg-red-50  transition-colors focus:outline-none focus:ring-2 focus:ring-[#FCE1D0] focus:ring-opacity-50"
           aria-label="Criar uma nova conta"
         >
-          Criar uma conta
+          Continuar como visitante
         </button>
       </div>
           

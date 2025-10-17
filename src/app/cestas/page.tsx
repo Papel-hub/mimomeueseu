@@ -1,23 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import ProductCard from '@/components/ProductCard';
+import CestasCard from '@/components/CestaCard';
 import TabButton from '@/components/TabButton';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { app } from '@/lib/firebaseConfig';
-
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  rating: number;
-  image: string;
-  slug: string;
-  category: string;
-  video?: string;
-}
+import { db } from '@/lib/firebaseConfig'; // ✅ Importa a instância global do Firestore
+import { collection, getDocs } from 'firebase/firestore';
+import { Product } from '@/types/Product';
 
 export default function CestasPage() {
   const [activeTab, setActiveTab] = useState('Romance');
@@ -25,30 +15,41 @@ export default function CestasPage() {
   const [loading, setLoading] = useState(true);
 
   const tabs = ['Romance', 'Família & Amigos', 'Datas Especiais'];
-  const db = getFirestore(app);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const snapshot = await getDocs(collection(db, 'products'));
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[];
-        setProducts(data);
+        const snapshot = await getDocs(collection(db, 'cestas'));
+
+const lista = snapshot.docs
+  .map((doc) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      title: typeof data.title === 'string' ? data.title : undefined,
+      price: typeof data.price === 'number' ? data.price : undefined,
+      rating: typeof data.rating === 'number' ? data.rating : undefined,
+      image: typeof data.image === 'string' ? data.image : undefined,
+      category: typeof data.category === 'string' ? data.category : undefined,
+      video: typeof data.video === 'string' ? data.video : undefined,
+      bestseller: data.bestseller === true,
+    };
+  })
+  .filter((item) => item.title && item.image); // sem type guard
+
+setProducts(lista as Product[]);
+
       } catch (err) {
-        console.error('Erro ao buscar produtos:', err);
+        console.error('Erro ao buscar cestas:', err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [db]);
+  }, [db]); 
 
-  const filteredProducts = products.filter(product => {
-    if (activeTab === 'Romance') return product.category === 'Romance';
-    if (activeTab === 'Família & Amigos') return product.category === 'Família & Amigos';
-    if (activeTab === 'Datas Especiais') return product.category === 'Datas Especiais';
-    return true;
-  });
+  const filteredProducts = products.filter((product) => product.category === activeTab);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -59,7 +60,7 @@ export default function CestasPage() {
 
         {/* Abas */}
         <div className="flex flex-wrap gap-2 mb-8">
-          {tabs.map(tab => (
+          {tabs.map((tab) => (
             <TabButton
               key={tab}
               label={tab}
@@ -71,28 +72,32 @@ export default function CestasPage() {
 
         {/* Produtos */}
         {loading ? (
-          <p className="text-center text-gray-500 mt-10">Carregando produtos...</p>
+          <p className="text-center text-gray-500 mt-10">Carregando Cestas...</p>
         ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
-              <ProductCard
+            {filteredProducts.map((product) => (
+              <CestasCard
                 key={product.id}
-                title={product.title}
+                id={product.id}
+                title={product.title || 'Sem título'}
                 price={product.price}
-                rating={Math.round(product.rating)}
-                image={product.image} // URL do VPS
-                slug={product.slug}
-                video={product.video}
+                rating={product.rating}
+                image={product.image || '/images/p1.png'}
+                bestseller={product.bestseller}
+                showPrice={true}
+                showViewDetails={true}
               />
             ))}
           </div>
         ) : (
-          <p className="text-center text-gray-500 mt-10">Nenhum produto encontrado nesta categoria.</p>
+          <p className="text-center text-gray-500 mt-10">
+            Nenhuma cesta encontrada nesta categoria.
+          </p>
         )}
 
         {/* Paginação (exemplo visual) */}
         <div className="flex justify-center mt-10 space-x-2">
-          {[1, 2, 3].map(page => (
+          {[1, 2, 3].map((page) => (
             <button
               key={page}
               className={`w-10 h-10 rounded-lg font-medium transition-colors ${

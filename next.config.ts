@@ -13,6 +13,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname:'tse2.mm.bing.net',
+
+      },
+
+      {
+        protocol: 'https',
         hostname: 'lh5.googleusercontent.com',
       },
       {

@@ -2,40 +2,47 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { app } from "@/lib/firebaseConfig";
 
 export default function HomePage() {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    // Garantir que estamos no cliente
     setIsClient(true);
   }, []);
 
   useEffect(() => {
     if (!isClient) return;
 
-    const checkDeviceAndRedirect = () => {
-      const width = window.innerWidth;
+    const auth = getAuth(app);
 
-      if (width < 768) {
-        // Mobile
-        router.replace("/welcome/mobile");
+    // Escuta mudanças de autenticação
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // ✅ Usuário logado → vai direto para /home
+        router.replace("/home");
       } else {
-        // Desktop
-        router.replace("/welcome");
+        // ❌ Usuário não logado → verifica tipo de dispositivo
+        const width = window.innerWidth;
+
+        if (width < 768) {
+          router.replace("/welcome/mobile");
+        } else {
+          router.replace("/welcome");
+        }
       }
-    };
 
-    // Executa ao montar
-    checkDeviceAndRedirect();
+      setIsCheckingAuth(false);
+    });
 
-    // Escuta redimensionamento da tela
-    window.addEventListener("resize", checkDeviceAndRedirect);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", checkDeviceAndRedirect);
+    return () => unsubscribe();
   }, [isClient, router]);
+
+  // Enquanto verifica login, evita piscar tela
+  if (isCheckingAuth) return null;
 
   return null;
 }

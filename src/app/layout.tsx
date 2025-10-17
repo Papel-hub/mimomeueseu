@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Head from "next/head";
 import localFont from "next/font/local";
 import "./../styles/globals.css";
+import { CartProvider } from "@/contexts/CartContext";
+import { AuthProvider } from '@/contexts/AuthContext';
 
-// Fonte personalizada
 const circularStd = localFont({
   src: [
     { path: "../fonts/Circular-Std-Book.ttf", weight: "400", style: "normal" },
@@ -11,14 +11,13 @@ const circularStd = localFont({
   ],
   variable: "--font-circular",
   display: "swap",
-  preload: true,
 });
 
-// Domínio principal
+// ⚠️ Remova os espaços extras na URL!
 const siteUrl = "https://mimomeueseu.com";
 
 export const metadata: Metadata = {
-  title: "Mimo Meu e Seu | Listas e Cartões de Presente Personalizados",
+  title: "Mimo Meu e Seu | Cestas e Cartões de Presente Personalizados",
   description:
     "Crie listas de presentes e cartões personalizados para surpreender quem você ama. Compartilhe carinho, memórias e momentos especiais de forma única.",
   authors: [{ name: "Marco Morais" }],
@@ -49,9 +48,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  verification: {
-    google: "SEU-CODIGO-DE-VERIFICACAO", // Substitua pelo código real do Google Search Console
-  },
 };
 
 export default function RootLayout({
@@ -65,14 +61,17 @@ export default function RootLayout({
       className={circularStd.variable}
       suppressHydrationWarning
     >
-      <Head>
-        <meta name="color-scheme" content="light dark" />
-        <meta name="theme-color" content="#ffffff" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-
       <body className="font-sans antialiased bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
-        <div className="relative z-10">{children}</div>
+        {/* Theme color via <meta> — permitido no body ou head implícito */}
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#111827" />
+        <meta name="color-scheme" content="light dark" />
+
+        <AuthProvider> 
+          <CartProvider>
+            <div className="relative z-10">{children}</div>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -6,10 +6,7 @@ import Link from 'next/link';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { FaChevronDown } from 'react-icons/fa';
 import { app } from '@/lib/firebaseConfig'; 
-
-const useCart = () => {
-  return { cartCount: 4 }; // Mock temporário
-};
+import { useCart } from "@/contexts/CartContext";
 
 export default function Header() {
   const { cartCount } = useCart();
@@ -84,7 +81,6 @@ export default function Header() {
 
           {/* Ações do usuário */}
           <div className="flex items-center space-x-3">
-            {/* Área do usuário */}
             <div className="relative hidden sm:flex items-center" ref={userMenuRef}>
               <div className="w-9 h-9 rounded-full overflow-hidden border border-white shadow-sm">
                   <Image
@@ -96,7 +92,7 @@ export default function Header() {
                   />
                 </div>
                 <span className="text-sm font-medium px-1">
-                  Olá, {user?.displayName?.split(' ')[0] || 'test@Marco'}
+                  Olá, {user?.displayName?.split(' ')[0] || '@Visitante'}
                 </span> 
                 <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -114,41 +110,58 @@ export default function Header() {
                   >
                     Minha conta
                   </Link>
+                  <Link
+                    href="/conta"
+                    className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Afiliados
+                  </Link>
+                  <Link
+                    href="/conta"
+                    className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Ser um influenciador
+                  </Link>
+
+                  <Link
+                    href="/conta"
+                    className="block px-4 py-2  border-b border-gray-300 text-sm hover:bg-red-50 hover:text-red-900"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Pessoas que amo
+                  </Link>                 
                   {user ? (
                     <button
-                      className="w-full text-left px-4  border-b border-gray-300 py-2 text-sm hover:bg-red-50 hover:text-red-900"
+                      className="w-full text-left px-4  py-2 text-sm hover:bg-red-50 hover:text-red-900"
                       onClick={() => signOut(auth)}
                     >
                       Sair
                     </button>
                   ) : (
                     <Link
-                      href="/login"
+                      href="/auth/login"
                       className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
                     >
                       Entrar
                     </Link>
                   )}
-                  <Link
-                    href="/admin"
-                    className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    Area adiministrativa
-                  </Link>
                 </div>
               )}
             </div>
 
             {/* Botão Criar Cesta */}
-            <button className="border border-white text-white px-3 h-10 py-1.5 text-xs sm:text-sm font-medium rounded-full hover:bg-red-800 whitespace-nowrap">
+            <Link 
+            href="/cestas/personalizar"
+            className="border border-white text-white px-3 h-10 py-1.5 text-xs sm:text-sm font-medium rounded-full hover:bg-red-800 whitespace-nowrap">
               + Criar Cesta
-            </button>
+            </Link>
 
             {/* Ícone do Carrinho */}
             <Link
               href="/carrinho"
-              className="p-2 border border-white rounded-full hover:bg-red-800 transition relative"
+              className=" border border-white rounded-full hover:bg-red-800 p-2 transition relative"
               aria-label="Carrinho"
             >
               <svg
@@ -171,7 +184,7 @@ export default function Header() {
               )}
             </Link>
 
-            {/* Menu Mobile */}
+            {/* icone Menu Mobile */}
             <button
               className="md:hidden p-2 border border-white rounded-md text-white hover:bg-red-800 focus:outline-none"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -215,14 +228,29 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <div className="pt-3 border-t border-gray-200">
+            <div className="pt-3">
               <Link
-                href="/perfil"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-red-50 hover:text-red-900"
+                href="/conta"
+                className="block px-3 py-2 rounded-md  border-b border-gray-300 text-base font-medium text-gray-700 hover:bg-red-50 hover:text-red-900"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Meu Perfil
+                Minha conta
               </Link>
+                  {user ? (
+                    <button
+                      className="w-full text-left px-4  border-b border-gray-300 py-2 text-sm hover:bg-red-50 hover:text-red-900"
+                      onClick={() => signOut(auth)}
+                    >
+                      Sair
+                    </button>
+                  ) : (
+                    <Link
+                      href="/auth/login"
+                      className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
+                    >
+                      Entrar
+                    </Link>
+                  )}
             </div>
           </div>
         </div>
