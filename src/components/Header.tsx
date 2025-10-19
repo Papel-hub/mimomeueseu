@@ -151,10 +151,12 @@ export default function Header() {
               )}
             </div>
 
+            
+
             {/* Botão Criar Cesta */}
             <Link 
             href="/cestas/personalizar"
-            className="border border-white text-white px-3 h-10 py-1.5 text-xs sm:text-sm font-medium rounded-full hover:bg-red-800 whitespace-nowrap">
+            className="border border-white flex items-center justify-center gap-2 font-bold p-3  transition text-center text-white px-3  text-xs sm:text-sm font-medium rounded-full hover:bg-red-800 whitespace-nowrap">
               + Criar Cesta
             </Link>
 
@@ -228,17 +230,17 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <div className="pt-3">
+            <div className="pt-3 ">
               <Link
                 href="/conta"
-                className="block px-3 py-2 rounded-md  border-b border-gray-300 text-base font-medium text-gray-700 hover:bg-red-50 hover:text-red-900"
+                className="block px-3 py-2 rounded-md   border-gray-300 text-base font-medium text-gray-700 hover:bg-red-50 hover:text-red-900"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Minha conta
               </Link>
                   {user ? (
                     <button
-                      className="w-full text-left px-4  border-b border-gray-300 py-2 text-sm hover:bg-red-50 hover:text-red-900"
+                      className="w-full text-left px-4 border-t border-gray-300 py-2 text-sm hover:bg-red-50 hover:text-red-900"
                       onClick={() => signOut(auth)}
                     >
                       Sair

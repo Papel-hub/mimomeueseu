@@ -1,4 +1,4 @@
-// src/lib/firebaseAdmin.ts
+// lib/firebaseAdmin.ts
 import admin from "firebase-admin";
 
 // Inicializa apenas se ainda não foi inicializado
@@ -17,4 +17,7 @@ if (!admin.apps.length) {
   }
 }
 
+// Exportações nomeadas para uso direto
+export const db = admin.firestore();
+export const auth = admin.auth();
 export default admin;

@@ -14,7 +14,7 @@ import {
 import { db } from '@/lib/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { Cesta, CustomizationOption } from '@/types/cesta';
-import { useCart } from '@/contexts/CartContext';
+
 
 export default function PersonalizarPage() {
   const params = useParams();
@@ -22,7 +22,6 @@ export default function PersonalizarPage() {
   const [cesta, setCesta] = useState<Cesta | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { addToCart } = useCart();
   const [selectedItems, setSelectedItems] = useState<
     Record<string, { option: string; quantity: number }>
   >({});
@@ -128,17 +127,7 @@ export default function PersonalizarPage() {
     return subtotal;
   }, [selectedItems, audioUrl, videoUrl, cesta]);
 
-  // 🔹 Adicionar ao carrinho
-  const handleAddToCart = () => {
-    if (!cesta) return;
-    const productForCart = {
-      id: cesta.id,
-      title: cesta.title,
-      price: total,
-      image: Array.isArray(cesta.image) ? cesta.image[0] : cesta.image,
-    };
-    addToCart(productForCart);
-  };
+
 
   // 🔹 Handlers
   const handleOptionChange = (category: string, value: string) => {
@@ -236,7 +225,7 @@ export default function PersonalizarPage() {
         <div className="bg-white rounded-xl shadow-sm p-6 space-y-6 max-w-2xl mx-auto">
           {cesta.customizationOptions && cesta.customizationOptions.length > 0 ? (
             cesta.customizationOptions.map((cat, index) => (
-              <div key={index} className="border-b pb-6 last:border-b-0">
+              <div key={index} className="pb-6 last:border-b-0">
                 <h2 className="font-semibold text-lg text-gray-800 mb-3">
                   {cat.category}
                 </h2>
@@ -283,7 +272,7 @@ export default function PersonalizarPage() {
           )}
 
           {/* 🔹 Áudio/Vídeo */}
-          <div className="border-t pt-6 mt-6">
+          <div className="border-t border-gray-300 pt-6 mt-6">
             <h2 className="font-semibold text-lg text-gray-800 mb-3">
               Vídeo ou Áudio Personalizado (opcional)
             </h2>
@@ -329,25 +318,12 @@ export default function PersonalizarPage() {
 
           {/* 🔹 Botões */}
           <div className="space-y-3">
-            <button
-              onClick={handleAddToCart}
-              className="w-full font-semibold border-2 border-red-900 text-red-900 py-3 rounded-full hover:bg-red-50 transition flex justify-center items-center gap-2"
+            <Link
+            href={`/mensagem/${id}`}
+              className="w-full font-semibold border-2 border-red-900 text-white py-3 rounded-full hover:bg-red-800 bg-red-900 transition flex justify-center items-center gap-2"
             >
-              <svg
-                className="w-6 h-6 text-red-900"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6m0 0h9"
-                />
-              </svg>
-              Adicionar ao carrinho
-            </button>
+              Continuar
+            </Link>
 
             <Link
               href={`/cestas/${id}`}

@@ -1,40 +1,49 @@
-// src/lib/hooks/useCartaoStatus.ts (ou onde estiver)
+// hooks/useCartaoStatus.ts
+'use client';
 
 import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebaseConfig'; // ✅ use db diretamente
-import { auth } from '@/lib/firebaseConfig'; // ✅ use auth diretamente
+import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { FirebaseError } from 'firebase/app'; // ✅ tipo correto
+import { auth, db } from '@/lib/firebaseConfig'; // certifique-se de exportar `db` (Firestore)
 
 export function useCartaoStatus() {
-  const [hasCartao, setHasCartao] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [hasCartao, setHasCartao] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        setError('Usuário não autenticado');
+        // Usuário não logado → não tem cartão
+        setHasCartao(false);
         setLoading(false);
         return;
       }
 
       try {
-        const docRef = doc(db, 'cartoes', user.uid);
-        const docSnap = await getDoc(docRef);
+        // Busca o documento do usuário no Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
 
-        setHasCartao(docSnap.exists());
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          // Verifica se o campo `card` existe (pode ser booleano, objeto, etc.)
+          const hasCard = userData.card !== undefined && userData.card !== null;
+          setHasCartao(hasCard);
+        } else {
+          // Documento não existe → não tem cartão
+          setHasCartao(false);
+        }
       } catch (err) {
-        const error = err as FirebaseError; // ✅ sem "any"
-        console.error('Erro ao verificar cartão:', error);
-        setError(error.message || 'Erro desconhecido ao carregar cartão.');
+        console.error('Erro ao buscar dados do usuário:', err);
+        setError('Falha ao verificar cartão');
+        setHasCartao(false);
       } finally {
         setLoading(false);
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribeAuth();
   }, []);
 
   return { hasCartao, loading, error };

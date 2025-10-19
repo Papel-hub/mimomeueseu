@@ -228,7 +228,7 @@ export default function ParceriasPage() {
                         name="contato"
                         type="tel"
                         className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
-                        placeholder="(+244) 999 999 999"
+                        placeholder="+55 (11) 99999-9999"
                         required
                       />
                     </div>
