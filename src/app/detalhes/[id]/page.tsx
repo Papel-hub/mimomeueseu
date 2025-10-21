@@ -1,30 +1,28 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { useParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import {
-  StarIcon,
-} from '@heroicons/react/24/outline';
+import { StarIcon } from '@heroicons/react/24/outline';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Acao from '@/components/Acao';
+import Acao from '../components/Acao';
 import { db } from '@/lib/firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, DocumentData } from 'firebase/firestore';
 import { Cesta } from '@/types/cesta';
-import { useCart } from "@/contexts/CartContext";
 
 export default function CestaDetailPage() {
   const params = useParams();
   const id = params?.id as string | undefined;
-  const [selectedFormat, setSelectedFormat] = useState<'cesta' | 'maleta' | 'bandeja'>('cesta');
+  const router = useRouter();
+
   const [cesta, setCesta] = useState<Cesta | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [mainMedia, setMainMedia] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const { addToCart } = useCart();
+  const [selectedFormat, setSelectedFormat] = useState<'cesta' | 'maleta' | 'bandeja'>('cesta');
 
   useEffect(() => {
     if (!id) {
@@ -43,9 +41,8 @@ export default function CestaDetailPage() {
           return;
         }
 
-        const data = docSnap.data();
+        const data = docSnap.data() as DocumentData;
 
-        // ✅ Monta os dados com segurança
         const cestaData: Cesta = {
           id: docSnap.id,
           title: typeof data.title === 'string' ? data.title : 'Cesta sem nome',
@@ -56,22 +53,12 @@ export default function CestaDetailPage() {
             ? data.description
             : 'Descrição não disponível.',
           video: typeof data.video === 'string' ? data.video : undefined,
-          image: Array.isArray(data.image)
-            ? data.image.filter(img => typeof img === 'string')
-            : ['/images/p1.png'],
-          items: Array.isArray(data.items)
-            ? data.items.filter(item => typeof item === 'string')
-            : ['Item não informado'],
+          image: Array.isArray(data.image) ? data.image.filter((img: unknown) => typeof img === 'string') : ['/images/p1.png'],
+          items: Array.isArray(data.items) ? data.items.filter((item: unknown) => typeof item === 'string') : ['Item não informado'],
           nutritionalInfo: {
-            calories: typeof data.nutritionalInfo?.calories === 'string'
-              ? data.nutritionalInfo.calories
-              : 'Não informado',
-            origin: typeof data.nutritionalInfo?.origin === 'string'
-              ? data.nutritionalInfo.origin
-              : 'Não informado',
-            certification: typeof data.nutritionalInfo?.certification === 'string'
-              ? data.nutritionalInfo.certification
-              : 'Não informado',
+            calories: typeof data.nutritionalInfo?.calories === 'string' ? data.nutritionalInfo.calories : 'Não informado',
+            origin: typeof data.nutritionalInfo?.origin === 'string' ? data.nutritionalInfo.origin : 'Não informado',
+            certification: typeof data.nutritionalInfo?.certification === 'string' ? data.nutritionalInfo.certification : 'Não informado',
           },
           formatOptions: {
             cesta: typeof data.formatOptions?.cesta === 'number' ? data.formatOptions.cesta : 0,
@@ -93,13 +80,13 @@ export default function CestaDetailPage() {
     fetchCesta();
   }, [id]);
 
-  // ✅ Atualiza mídia principal ao clicar nas miniaturas
+  // Atualiza mídia principal ao clicar nas miniaturas
   const handleThumbnailClick = (index: number) => {
     setSelectedImageIndex(index);
-    setMainMedia(null); // volta à imagem principal
+    setMainMedia(null);
   };
 
-  // ✅ Usa useMemo para performance
+  // Calcula preço final baseado no formato
   const finalPrice = useMemo(() => {
     if (!cesta) return 0;
     const basePrice = cesta.price;
@@ -107,116 +94,71 @@ export default function CestaDetailPage() {
     return basePrice + extra;
   }, [cesta, selectedFormat]);
 
-  // ✅ Adicionar ao carrinho
-const handleAddToCart = () => {
-  if (!cesta) return;
-
-  const productForCart = {
-    id: cesta.id,
-    title: cesta.title,
-    price: finalPrice,
-    image: Array.isArray(cesta.image) ? cesta.image[0] : cesta.image,
-  };
-
-  addToCart(productForCart);
-};
-
-
-  // Estado: Carregando
+  // Loading
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
-        <main className="flex-grow flex items-center justify-center pt-24">
-          <p className="text-gray-600">Carregando cesta...</p>
+        <main className="flex-grow flex flex-col items-center justify-center pt-24 px-4 text-center">
+          <p className="text-gray-700 text-lg">Carregando detalhes da cesta...</p>
         </main>
         <Footer />
       </div>
     );
   }
 
-  // Estado: Erro
+  // Erro
   if (error || !cesta) {
     return (
       <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
         <main className="flex-grow flex flex-col items-center justify-center pt-24 px-4 text-center">
           <p className="text-red-600 mb-4">{error || 'Cesta não encontrada.'}</p>
-          <Link
-            href="/cestas"
-            className="text-red-900 hover:underline font-medium flex items-center gap-1"
+          <button
+            onClick={() => router.push("/cestas")}
+            className="bg-red-900 text-white px-6 py-3 rounded-full font-medium shadow hover:bg-red-800 transition"
           >
-            ← Voltar para as cestas
-          </Link>
+            Ver cestas
+          </button>
         </main>
         <Footer />
       </div>
     );
   }
 
-  // ✅ Renderização principal
+  // Renderização principal
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
-
       <main className="flex-grow px-4 sm:px-6 lg:px-8 py-6 pt-24 sm:pt-28 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Galeria */}
           <div className="flex flex-row gap-4">
             <div className="flex flex-col gap-3">
-              {/* Vídeo */}
               {cesta.video && (
                 <button
                   onClick={() => setMainMedia(cesta.video!)}
-                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                    mainMedia === cesta.video ? 'border-green-500' : 'border-transparent'
-                  }`}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${mainMedia === cesta.video ? 'border-green-500' : 'border-transparent'}`}
                 >
-                  <div className="bg-black text-white text-xs flex items-center justify-center w-full h-full">
-                    ▶️
-                  </div>
+                  <div className="bg-black text-white text-xs flex items-center justify-center w-full h-full">▶️</div>
                 </button>
               )}
-
-              {/* Miniaturas */}
               {cesta.image.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleThumbnailClick(idx)}
-                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                    !mainMedia && selectedImageIndex === idx
-                      ? 'border-green-500'
-                      : 'border-transparent'
-                  }`}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${!mainMedia && selectedImageIndex === idx ? 'border-green-500' : 'border-transparent'}`}
                 >
-                  <Image
-                    src={img}
-                    alt={`Thumbnail ${idx + 1}`}
-                    width={64}
-                    height={64}
-                    className="object-cover w-full h-full"
-                  />
+                  <Image src={img} alt={`Thumbnail ${idx + 1}`} width={64} height={64} className="object-cover w-full h-full" />
                 </button>
               ))}
             </div>
 
-            {/* Mídia principal */}
             <div className="bg-gray-100 rounded-xl flex items-center justify-center w-full max-w-[500px] max-h-[425px]">
               {mainMedia ? (
-                <video
-                  src={mainMedia}
-                  controls
-                  className="w-full h-full object-contain rounded-xl"
-                  poster={cesta.image[0]}
-                />
+                <video src={mainMedia} controls className="w-full h-full object-contain rounded-xl" poster={cesta.image[0]} />
               ) : (
-                <Image
-                  src={cesta.image[selectedImageIndex]}
-                  alt={cesta.title}
-                  width={400}
-                  height={400}
-                  className="object-contain w-full h-full"
-                />
+                <Image src={cesta.image[selectedImageIndex]} alt={cesta.title} width={400} height={400} className="object-contain w-full h-full" />
               )}
             </div>
           </div>
@@ -224,69 +166,39 @@ const handleAddToCart = () => {
           {/* Informações da cesta */}
           <div className="flex flex-col gap-4">
             <h1 className="text-3xl font-bold text-gray-900">{cesta.title}</h1>
-
-            {/* Avaliações */}
             <div className="flex items-center">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon
-                    key={i}
-                    className={`h-5 w-5 ${
-                      i < Math.floor(cesta.rating) ? 'text-yellow-400' : 'text-gray-300'
-                    }`}
-                  />
+                  <StarIcon key={i} className={`h-5 w-5 ${i < Math.floor(cesta.rating) ? 'text-yellow-400' : 'text-gray-300'}`} />
                 ))}
               </div>
-              <span className="ml-2 text-gray-600">
-                {cesta.rating} ({cesta.reviewCount} avaliações)
-              </span>
+              <span className="ml-2 text-gray-600">{cesta.rating} ({cesta.reviewCount} avaliações)</span>
             </div>
-
             <p className="text-gray-700">{cesta.description}</p>
 
-            {/* Seleção de formato */}
+            {/* Formato */}
             <div>
-              <h2 className="font-semibold text-lg text-gray-800 mb-2">
-                Escolha o formato da cestaria:
-              </h2>
+              <h2 className="font-semibold text-lg text-gray-800 mb-2">Escolha o formato da cestaria:</h2>
               <div className="flex flex-wrap gap-4">
                 {(['cesta', 'maleta', 'bandeja'] as const).map((format) => {
-                  const label = format === 'cesta' ? 'Cesta' :
-                                format === 'maleta' ? 'Maleta' : 'Bandeja';
+                  const label = format === 'cesta' ? 'Cesta' : format === 'maleta' ? 'Maleta' : 'Bandeja';
                   const extra = cesta?.formatOptions?.[format] ?? 0;
-
                   return (
                     <label
                       key={format}
-                      className={`flex items-center border rounded-lg px-3 py-2 cursor-pointer transition ${
-                        selectedFormat === format
-                          ? 'border-red-500 bg-red-50'
-                          : 'border-gray-300 hover:border-red-300'
-                      }`}
+                      className={`flex items-center border rounded-lg px-3 py-2 cursor-pointer transition ${selectedFormat === format ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-red-300'}`}
                     >
-                      <input
-                        type="radio"
-                        name="format"
-                        checked={selectedFormat === format}
-                        onChange={() => setSelectedFormat(format)}
-                        className="sr-only"
-                      />
+                      <input type="radio" name="format" checked={selectedFormat === format} onChange={() => setSelectedFormat(format)} className="sr-only" />
                       <span className="text-gray-700 font-medium">{label}</span>
-                      {extra > 0 && (
-                        <span className="ml-2 text-sm text-green-600">+ R$ {extra.toFixed(2)}</span>
-                      )}
+                      {extra > 0 && <span className="ml-2 text-sm text-green-600">+ R$ {extra.toFixed(2)}</span>}
                     </label>
                   );
                 })}
               </div>
             </div>
 
-            {/* Preço final */}
-            <p className="text-2xl font-bold text-red-900">
-              VALOR: R$ {finalPrice.toFixed(2)}
-            </p>
+            <p className="text-2xl font-bold text-red-900">VALOR: R$ {finalPrice.toFixed(2)}</p>
 
-            {/* Info de envio */}
             <div className="p-4 bg-red-50 rounded-lg">
               <h3 className="font-medium text-red-900">Envio pelos Correios/Transportadoras:</h3>
               <ul className="mt-2 text-sm text-gray-700 space-y-1">
@@ -318,39 +230,14 @@ const handleAddToCart = () => {
             </ul>
 
             <div className="mt-6 space-y-4">
-              <Link href={`/cestas/personalizar/${id}`} className="block">
-                <button className="w-full bg-red-900 text-white py-3 rounded-full font-semibold hover:bg-red-800 transition">
-                  Personalizar cesta
-                </button>
+              <Link href={`/personalizar/${id}`} className="block">
+                <button className="w-full bg-red-900 text-white py-3 rounded-full font-semibold hover:bg-red-800 transition">Personalizar cesta</button>
               </Link>
-
-              <button
-                onClick={handleAddToCart}
-                className="w-full font-semibold border-2 border-red-900 text-red-900 py-3 rounded-full hover:bg-red-50 transition flex justify-center items-center gap-2"
-              >
-                <svg
-                  className="w-6 h-6 text-red-900"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6m0 0h9"
-                  />
-                </svg>
-                Adicionar ao carrinho
-              </button>
             </div>
           </div>
 
-          {/* Avaliações */}
           <div className="border border-gray-200 rounded-lg p-5">
-            <h2 className="font-semibold text-lg text-gray-800 mb-3">
-              Avaliações ({cesta.reviewCount})
-            </h2>
+            <h2 className="font-semibold text-lg text-gray-800 mb-3">Avaliações ({cesta.reviewCount})</h2>
             <div className="space-y-5">
               {[1, 2].map((i) => (
                 <div key={i} className="pb-4 border-b border-gray-100 last:border-0">
@@ -362,19 +249,15 @@ const handleAddToCart = () => {
                       ))}
                     </div>
                   </div>
-                  <p className="mt-2 text-gray-600">
-                    Cesta fresquíssima e linda! Chegou perfeita para o presente.
-                  </p>
+                  <p className="mt-2 text-gray-600">Cesta fresquíssima e linda! Chegou perfeita para o presente.</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Ações */}
         <Acao />
       </main>
-
       <Footer />
     </div>
   );

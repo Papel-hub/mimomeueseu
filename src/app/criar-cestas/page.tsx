@@ -9,7 +9,7 @@ import { db } from '@/lib/firebaseConfig'; // ✅ Importa a instância global do
 import { collection, getDocs } from 'firebase/firestore';
 import { Product } from '@/types/Product';
 
-export default function CestasPage() {
+export default function CriarCestasPage() {
   const [activeTab, setActiveTab] = useState('Romance');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

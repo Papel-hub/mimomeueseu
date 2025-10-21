@@ -58,7 +58,7 @@ export default function SucessoSolicitacaoPage() {
     } else if (isFisico) {
       router.push('/meus-pedidos');
     } else {
-      router.push('/cartao/meu-cartao');
+      router.push('/meu-cartao');
     }
   };
 
@@ -133,7 +133,7 @@ export default function SucessoSolicitacaoPage() {
 
           <button
             onClick={handleGoToCard}
-            className="w-full max-w-xs mx-auto bg-rose-600 text-white py-3 px-6 rounded-full font-medium hover:bg-rose-700 transition-colors"
+            className="w-full max-w-xs mx-auto bg-red-900 text-white py-3 px-6 rounded-full font-medium hover:bg-red-800 transition-colors"
           >
             {isPresente
               ? 'Voltar para a home'

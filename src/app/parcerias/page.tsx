@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useRouter } from 'next/navigation';
 import ParceirosCard from '@/components/ParceirosCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebaseConfig'; // ← IMPORTADO
@@ -11,10 +12,11 @@ import { doc, getDoc } from 'firebase/firestore'; // ← IMPORTADO
 export default function ParceriasPage() {
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting] = useState(false);
   const [meetLink, setMeetLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [hasCalendarAccess, setHasCalendarAccess] = useState(false);
+  const [, setHasCalendarAccess] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (user) {
@@ -31,74 +33,27 @@ export default function ParceriasPage() {
     }
   }, [user]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!user) {
-      setError("Você precisa estar logado para agendar uma reunião.");
-      return;
-    }
 
-    const formData = new FormData(e.currentTarget);
-    const nomeEmpresa = formData.get('nomeEmpresa') as string;
-    const email = formData.get('email') as string;
-    const contato = formData.get('contato') as string;
-    const produto = formData.get('produto') as string;
+const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    // Validação simples
-    if (!nomeEmpresa || !email || !contato || !produto) {
-      setError("Por favor, preencha todos os campos.");
-      return;
-    }
+  const formData = new FormData(e.currentTarget);
+  const nomeEmpresa = formData.get('nomeEmpresa') as string;
+  const email = formData.get('email') as string;
+  const contato = formData.get('contato') as string;
+  const produto = formData.get('produto') as string;
 
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      // Datas de exemplo: reunião em 3 dias, às 10h (Angola)
-      const now = new Date();
-      now.setDate(now.getDate() + 3);
-      now.setHours(10, 0, 0, 0);
-      const startTime = now.toISOString().replace('Z', '+01:00'); // Angola = UTC+1
-      
-      const endTime = new Date(now.getTime() + 60 * 60 * 1000) // +1h
-        .toISOString()
-        .replace('Z', '+01:00');
-
-      const response = await fetch('/api/create-meet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: `Reunião de Parceria - ${nomeEmpresa}`,
-          startTime,
-          endTime,
-          userId: user.uid, // ← ID do usuário do Firebase
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao criar reunião');
-      }
-
-      setMeetLink(data.meetLink);
-      // Opcional: salvar dados da parceria no Firestore aqui
-    } catch (err: unknown) {
-  let errorMessage = 'Erro desconhecido';
-  if (err instanceof Error) {
-    errorMessage = err.message;
-  } else if (typeof err === 'string') {
-    errorMessage = err;
-  }
-  // Opcional: se você sabe que sua API pode retornar { message: string }
-  // e o erro pode vir como objeto literal, adicione:
-  else if (err && typeof err === 'object' && 'message' in err) {
-    errorMessage = String((err as { message: unknown }).message);
+  if (!nomeEmpresa || !email || !contato || !produto) {
+    setError("Por favor, preencha todos os campos.");
+    return;
   }
 
-  setError(errorMessage);
-}
-  };
+  // redirecionar para a página de agendamento
+  router.push(
+    `/agendar?nomeEmpresa=${encodeURIComponent(nomeEmpresa)}&email=${encodeURIComponent(email)}&contato=${encodeURIComponent(contato)}&produto=${encodeURIComponent(produto)}`
+  );
+};
+
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -133,27 +88,6 @@ export default function ParceriasPage() {
             ))}
           </div>
         </div>
-
- {user && !hasCalendarAccess && (
-          <div className="bg-yellow-50 p-4 rounded-lg mb-6 text-center">
-            <p className="text-yellow-800 mb-2">
-              Para agendar reuniões, conecte sua conta do Google Calendar:
-            </p>
-            <a
-              href={`https://accounts.google.com/o/oauth2/v2/auth?client_id=${
-                process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-              }&redirect_uri=${encodeURIComponent(
-                process.env.NEXT_PUBLIC_CALENDAR_CALLBACK || 'http://localhost:3000/api/calendar-callback'
-              )}&scope=${encodeURIComponent(
-                'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events'
-              )}&response_type=code&access_type=offline&prompt=consent&state=${user.uid}`}
-              className="inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              Conectar Google Calendar
-            </a>
-          </div>
-        )}
-        
         {/* Modal de formulário */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/40 flex justify-center px-4 items-center z-50">

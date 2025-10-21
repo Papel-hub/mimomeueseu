@@ -135,7 +135,6 @@ const handleBoletoPayment = async (boletoData: {
 
           {metodo === 'pix' && (
             <PixPaymentSection
-              cartTotal={cartTotal}
               email={email}
               onEmailChange={setEmail}
               onGeneratePix={() => handlePayment('pix')}

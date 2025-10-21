@@ -4,12 +4,11 @@ import {  useParams } from 'next/navigation';
 import React, { useState, useEffect, useMemo } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Btn from '../components/Btn';
 import Link from 'next/link';
 import {
   ArrowLeftIcon,
   PlusCircleIcon,
-  MicrophoneIcon,
-  VideoCameraIcon,
 } from '@heroicons/react/24/outline';
 import { db } from '@/lib/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
@@ -25,8 +24,7 @@ export default function PersonalizarPage() {
   const [selectedItems, setSelectedItems] = useState<
     Record<string, { option: string; quantity: number }>
   >({});
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
 
   // 🔹 Carregar cesta do Firebase
   useEffect(() => {
@@ -119,13 +117,8 @@ export default function PersonalizarPage() {
       }
     });
 
-    // Taxa de mídia (áudio ou vídeo)
-    if (audioUrl || videoUrl) {
-      subtotal += cesta.mediaPersonalizationFee ?? 0;
-    }
-
     return subtotal;
-  }, [selectedItems, audioUrl, videoUrl, cesta]);
+  }, [selectedItems, cesta]);
 
 
 
@@ -156,15 +149,7 @@ export default function PersonalizarPage() {
     }));
   };
 
-  const handleUploadAudio = () => {
-    // Simulação – em produção, use upload para Firebase Storage
-    setAudioUrl('https://example.com/audio.mp3');
-  };
 
-  const handleUploadVideo = () => {
-    // Simulação – em produção, use upload para Firebase Storage
-    setVideoUrl('https://example.com/video.mp4');
-  };
 
 
   // 🔹 Loading
@@ -280,24 +265,8 @@ export default function PersonalizarPage() {
               Adicional de R${' '}
               {(cesta.mediaPersonalizationFee ?? 0).toFixed(2)} será adicionado.
             </p>
+            <Btn/>
 
-            <div className="space-y-3">
-              <button
-                onClick={handleUploadAudio}
-                className="w-full flex items-center justify-center font-bold gap-2 p-3 border border-gray-300 rounded-full hover:bg-gray-100 transition"
-              >
-                <MicrophoneIcon className="h-5 w-5" />
-                Gravar Áudio Personalizado
-              </button>
-
-              <button
-                onClick={handleUploadVideo}
-                className="w-full flex items-center font-bold justify-center gap-2 p-3 border border-gray-300 rounded-full hover:bg-gray-100 transition"
-              >
-                <VideoCameraIcon className="h-5 w-5" />
-                Gravar Vídeo Personalizado
-              </button>
-            </div>
           </div>
 
           {/* 🔹 Resumo de preço */}

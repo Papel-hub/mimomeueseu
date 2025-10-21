@@ -24,7 +24,7 @@ const CestasCard = ({
   showViewDetails = false,
 }: CestasCardProps) => (
   <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden relative">
-    <Link href={`/cestas/${id}`} className="block">
+    <Link href={`/detalhes/${id}`} className="block">
       {/* Badge "Mais Vendido" */}
       {bestseller && (
         <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-tr-2xl rounded-bl-2xl z-10">

@@ -1,5 +1,4 @@
 // app/pagamento/components/EmailInput.tsx
-import { useState } from 'react';
 
 interface EmailInputProps {
   value: string;

@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import { ClipboardIcon, CheckIcon } from '@heroicons/react/24/outline';
 import EmailInput from './EmailInput';
+import Image from 'next/image';
 
 interface PixPaymentSectionProps {
-  cartTotal: number;
   email: string;
   onEmailChange: (email: string) => void;
   onGeneratePix: () => Promise<void>;
@@ -14,7 +14,6 @@ interface PixPaymentSectionProps {
 }
 
 export default function PixPaymentSection({
-  cartTotal,
   email,
   onEmailChange,
   onGeneratePix,
@@ -78,8 +77,10 @@ export default function PixPaymentSection({
         <div className="space-y-6">
           <div className="text-center">
             <p className="font-medium text-gray-800 mb-3">Escaneie o QR Code</p>
-            <img
+            <Image 
               src={qrCode}
+              width={200} 
+              height={200}
               alt="QR Code para pagamento PIX"
               className="w-64 h-64 mx-auto border rounded-lg shadow-sm bg-white p-2"
             />

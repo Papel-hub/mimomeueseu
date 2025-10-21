@@ -5,9 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { auth, db } from '@/lib/firebaseConfig';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebaseConfig'; // db não é mais usado aqui
 
 type Modo = 'proprio' | 'presente';
 type TipoCartao = 'fisico' | 'digital';
@@ -31,12 +29,9 @@ export default function DadosCartaoPage() {
   const [error, setError] = useState<string | null>(null);
   const [cepLoading, setCepLoading] = useState(false);
 
-  // Dados do formulário
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [mensagem, setMensagem] = useState('');
-
-  // Endereço (só para físico)
   const [endereco, setEndereco] = useState<Endereco>({
     cep: '',
     logradouro: '',
@@ -62,8 +57,7 @@ export default function DadosCartaoPage() {
       setTipoCartao(savedTipo);
       setLoading(false);
 
-      // Preenche email se for próprio e logado
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const unsubscribe = auth.onAuthStateChanged((user) => {
         if (user && savedModo === 'proprio') {
           setEmail(user.email || '');
         }
@@ -73,25 +67,10 @@ export default function DadosCartaoPage() {
     }
   }, [router]);
 
-  if (loading || !modo || !tipoCartao) {
-    return (
-      <div className="flex flex-col min-h-screen bg-gray-50">
-        <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-rose-600 border-r-transparent"></div>
-            <p className="mt-4 text-gray-600">Carregando...</p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
   const isPresente = modo === 'presente';
   const isFisico = tipoCartao === 'fisico';
 
-  // Busca CEP
+  // 🔍 Busca CEP
   const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const cep = e.target.value.replace(/\D/g, '');
     setEndereco((prev) => ({ ...prev, cep: cep.slice(0, 8) }));
@@ -110,14 +89,15 @@ export default function DadosCartaoPage() {
             estado: data.uf || '',
           }));
         }
-      } catch (err) {
-        console.warn('Erro ao buscar CEP');
-      } finally {
+} catch {
+  console.log('Erro desconhecido');
+} finally {
         setCepLoading(false);
       }
     }
   };
 
+  // ✅ handleSubmit corrigido — APENAS UM
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -147,44 +127,61 @@ export default function DadosCartaoPage() {
     setSubmitting(true);
 
     try {
-      const userData = {
-        nome,
-        email: isPresente ? email : auth.currentUser?.email || '',
+      const user = auth.currentUser;
+      if (!user) throw new Error('Usuário não autenticado');
+
+      const token = await user.getIdToken();
+
+      const payload = {
         tipo: tipoCartao,
         modo,
+        nome,
+        email: isPresente ? email : user.email || '',
         mensagem: isPresente ? mensagem.trim() : null,
         ...(isFisico && { endereco }),
-        status: 'pending',
-        createdAt: new Date().toISOString(),
       };
 
-      if (isPresente) {
-        const giftId = crypto.randomUUID();
-        await setDoc(doc(db, 'gifts', giftId), {
-          ...userData,
-          id: giftId,
-        });
-      } else {
-        const user = auth.currentUser;
-        if (!user) throw new Error('Usuário não autenticado');
+      const res = await fetch('/api/solicitar-cartao', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        const finalData = userDoc.exists() ? { ...userDoc.data(), ...userData } : userData;
-        await setDoc(doc(db, 'users', user.uid), finalData, { merge: true });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro ao solicitar cartão');
       }
 
       localStorage.removeItem('mimo_tipo_cartao');
       localStorage.removeItem('mimo_tipo_entrega');
-
       router.push(`/solicitar-cartao/sucesso?tipo=${tipoCartao}&modo=${modo}`);
-
-    } catch (err) {
-      console.error('Erro ao salvar:', err);
-      setError('Não foi possível solicitar o cartão. Tente novamente.');
-    } finally {
-      setSubmitting(false);
-    }
+} catch (err) {
+  console.error('Erro:', err);
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError('Não foi possível concluir a solicitação.');
+  }
+} finally {
+  setSubmitting(false);
+}
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header />
+        <main className="flex-grow pt-24 pb-12 flex items-center justify-center">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-rose-600 border-r-transparent"></div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -229,26 +226,26 @@ export default function DadosCartaoPage() {
               />
             </div>
 
-            {/* Email (só se for presente OU cartão digital para si) */}
+            {/* Email */}
             {(isPresente || !isFisico) && (
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   {isPresente ? 'E-mail do presenteado' : 'Seu e-mail'}
                 </label>
-<input
-  id="email"
-  type="email"
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  disabled={!isPresente && !!auth.currentUser?.email}
-  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
-  placeholder="exemplo@dominio.com"
-  required={isPresente}
-/>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={!isPresente && !!auth.currentUser?.email}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  placeholder="exemplo@dominio.com"
+                  required={isPresente}
+                />
               </div>
             )}
 
-            {/* Mensagem (só se for presente) */}
+            {/* Mensagem */}
             {isPresente && (
               <div>
                 <label htmlFor="mensagem" className="block text-sm font-medium text-gray-700 mb-1">
@@ -265,7 +262,7 @@ export default function DadosCartaoPage() {
               </div>
             )}
 
-            {/* Endereço (só se for físico) */}
+            {/* Endereço */}
             {isFisico && (
               <>
                 <h2 className="text-lg font-medium text-gray-800 mt-6 mb-3">Endereço de entrega</h2>
@@ -386,7 +383,7 @@ export default function DadosCartaoPage() {
               type="submit"
               disabled={submitting}
               className={`w-full py-3 px-4 rounded-full font-medium text-white transition-colors ${
-                submitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-rose-600 hover:bg-rose-700'
+                submitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-900 hover:bg-red-800'
               }`}
             >
               {submitting
