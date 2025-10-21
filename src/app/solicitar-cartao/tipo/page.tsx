@@ -70,6 +70,7 @@ export default function EscolherTipoCartaoPage() {
 
     {/* ✅ Grid com 1 coluna em mobile, 2 em lg+ */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      
       {/* Coluna esquerda: opções */}
       <div className="space-y-6">
         {/* Botão Físico */}
@@ -133,13 +134,23 @@ export default function EscolherTipoCartaoPage() {
       </div>
 
       {/* Coluna direita: imagem */}
-      <div className="flex justify-center lg:justify-start">
-        <div className="w-full max-w-xs lg:max-w-sm rounded-lg bg-white shadow-sm">
+      <div className="space-y-6">
+        <div className="w-full max-w-xs rounded-lg bg-white shadow-sm">
           <Image
             src="/images/cartao.svg"
             alt="Cartão Mimo"
-            width={300}
-            height={300}
+            width={200}
+            height={200}
+            className="w-full object-contain"
+            priority
+          />
+        </div>
+        <div className="w-full max-w-xs rounded-lg bg-white shadow-sm">
+          <Image
+            src="/images/cartaoverso.svg"
+            alt="Cartão Mimo"
+            width={200}
+            height={200}
             className="w-full object-contain"
             priority
           />

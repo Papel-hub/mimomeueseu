@@ -275,10 +275,7 @@ export default function PersonalizarPage() {
               <span className="text-gray-600">Preço base</span>
               <span className="font-medium">R$ {cesta.price.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between mb-2">
-              <span className="text-gray-600">Frete</span>
-              <span className="font-medium">R$ 16,30</span>
-            </div>
+
             <div className="flex justify-between font-bold text-lg">
               <span>Total</span>
               <span>R$ {total.toFixed(2)}</span>

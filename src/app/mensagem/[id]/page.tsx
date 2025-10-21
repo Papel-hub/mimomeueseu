@@ -17,9 +17,13 @@ export default function MensagemPage() {
   const id = params.id as string;
   const [cesta, setCesta] = useState<Cesta | null>(null);
   const { addToCart } = useCart();
-  const [isChecked, setIsChecked] = useState(true);
+  const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [message, setMessage] = useState('');
+
 
   useEffect(() => {
     const fetchCesta = async () => {
@@ -93,18 +97,25 @@ export default function MensagemPage() {
     fetchCesta();
   }, [id]);
 
-  const handleAddToCart = () => {
-    if (!cesta) return;
+const handleAddToCart = () => {
+  if (!cesta) return;
 
-    const productForCart = {
-      id: cesta.id,
-      title: cesta.title,
-      price: cesta.price + (cesta.mediaPersonalizationFee || 0),
-      image: Array.isArray(cesta.image) ? cesta.image[0] : cesta.image,
-    };
-
-    addToCart(productForCart);
+  const productForCart = {
+    id: cesta.id,
+    title: cesta.title,
+    price: cesta.price + (cesta.mediaPersonalizationFee || 0),
+    image: Array.isArray(cesta.image) ? cesta.image[0] : cesta.image,
+    card: {
+      anonymous: isChecked,
+      from: isChecked ? null : from.trim() || null,
+      to: to.trim() || null,
+      message: message.trim() || null,
+    },
   };
+
+  addToCart(productForCart);
+};
+
 
   if (loading) {
     return (
@@ -160,17 +171,35 @@ export default function MensagemPage() {
         </p>
 
         <div className="bg-white rounded-xl shadow-sm p-6 space-y-6 max-w-2xl mx-auto">
-          <div className="flex justify-center">
-            <div className="w-full max-w-xs  object-contain">
-              <Image
-                src="/images/carta.svg"
-                alt="Cartão de mensagem"
-                width={450}
-                height={450}
-                className="object-contain w-full h-full"
-              />
+
+        <div className="relative flex justify-center">
+          {/* A imagem da carta */}
+          <Image
+            src="/images/carta.svg"
+            alt="Cartão de mensagem"
+            width={450}
+            height={450}
+            className="object-contain w-full max-w-xs select-none"
+          />
+           <div className="font-semibold text-xs absolute
+            top-[50%] left-[13%] text-gray-800 w-[30%] h-[4%]
+            whitespace-pre-line break-words overflow-hidden">
+              {!isChecked && from ? `${from}` : 'Digite o nome'}
             </div>
-          </div>
+            <div className="font-semibold text-xs absolute
+             top-[54.5%] left-[15%] text-gray-800 w-[30%] h-[4%]
+             whitespace-pre-line break-words overflow-hidden">
+              {to ? `${to}` : 'Digite o nome'}
+            </div>
+
+            <div className="mt-2 w-[35%] text-xs absolute
+             top-[62%] left-[8%] text-gray-700 italic 
+             whitespace-pre-line break-words
+              max-h-[120px] overflow-hidden">
+              {message || 'Sua mensagem...'}
+            </div>
+        </div>
+
 
           <div className="flex justify-center items-center gap-3 font-sans">
             <label className="toggle-switch relative inline-block h-6 w-12 cursor-pointer">
@@ -196,42 +225,48 @@ export default function MensagemPage() {
           </div>
 
           <div className="border-t pt-6 mt-6 space-y-4">
-            <div>
-              <label htmlFor="from" className="block text-sm font-medium text-gray-700 mb-1">
-                De:
-              </label>
-              <input
-                id="from"
-                type="text"
-                placeholder="Digite o seu nome"
-                className="w-full p-2 border border-gray-300 rounded-md"
-                disabled={isChecked}
-              />
-            </div>
+<div>
+  <label htmlFor="from" className="block text-sm font-medium text-gray-700 mb-1">
+    De:
+  </label>
+  <input
+    id="from"
+    type="text"
+    placeholder="Digite o seu nome"
+    className="w-full p-2 border border-gray-300 rounded-md"
+    value={from}
+    onChange={(e) => setFrom(e.target.value)}
+    disabled={isChecked}
+  />
+</div>
 
-            <div>
-              <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-1">
-                Para:
-              </label>
-              <input
-                id="to"
-                type="text"
-                placeholder="Digite o nome de quem deseja"
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-            </div>
+<div>
+  <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-1">
+    Para:
+  </label>
+  <input
+    id="to"
+    type="text"
+    placeholder="Digite o nome de quem deseja"
+    className="w-full p-2 border border-gray-300 rounded-md"
+    value={to}
+    onChange={(e) => setTo(e.target.value)}
+  />
+</div>
 
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                Mensagem:
-              </label>
-              <textarea
-                id="message"
-                placeholder="Escreva sua mensagem aqui..."
-                className="w-full p-3 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 focus:outline-none"
-                rows={3}
-              />
-            </div>
+<div>
+  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+    Mensagem:
+  </label>
+  <textarea
+    id="message"
+    placeholder="Escreva sua mensagem aqui..."
+    className="w-full p-3 border border-slate-300 rounded focus:ring-2 focus:ring-red-500 focus:outline-none"
+    rows={3}
+    value={message}
+    onChange={(e) => setMessage(e.target.value)}
+  />
+</div>
           </div>
 
           <div className="space-y-3 pt-4">
