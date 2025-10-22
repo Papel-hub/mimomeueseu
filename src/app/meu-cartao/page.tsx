@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
-import { getAuth, getIdToken } from 'firebase/auth'; // ← necessário para o token
+import { getAuth, onAuthStateChanged, User, getIdToken } from 'firebase/auth';
 
 interface Transacao {
   id: string;
@@ -45,31 +45,36 @@ const fetcher = async (url: string): Promise<CartaoData> => {
   return res.json();
 };
 
-
 const LoadingSpinner = () => (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
-      <div className="min-h-screen flex items-center justify-center">
-
-        <div className="animate-spin w-8 h-8 border-4 border-rose-600 rounded-full border-t-transparent">
-          
-        </div>
-      </div>
-      <Footer />
+  <div className="flex flex-col min-h-screen bg-gray-50">
+    <Header />
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin w-8 h-8 border-4 border-rose-600 rounded-full border-t-transparent" />
     </div>
+    <Footer />
+  </div>
 );
 
 export default function MeuCartaoPage() {
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
-  // Garantir que o código só rode no cliente (Firebase Auth)
+  // Espera o Firebase resolver o estado de autenticação
   useEffect(() => {
-    setIsClient(true);
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthChecked(true);
+    });
+    return () => unsubscribe();
   }, []);
 
+  // Só faz a requisição se o usuário estiver autenticado
+  const shouldFetch = authChecked && !!user;
+
   const { data: cartaoData, error, isLoading } = useSWR(
-    isClient ? '/api/user/cartao' : null,
+    shouldFetch ? '/api/user/cartao' : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -84,9 +89,40 @@ export default function MeuCartaoPage() {
     }
   }, [cartaoData, isLoading, router]);
 
-  if (!isClient || isLoading) return <LoadingSpinner />;
-  if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">Erro ao carregar cartão.</div>;
-  if (!cartaoData?.hasCartao) return null;
+  // Enquanto verifica autenticação ou carrega
+  if (!authChecked || isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  // Se não estiver autenticado, redireciona ou mostra erro
+  if (!user) {
+    router.push('/login');
+    return null;
+  }
+
+  // Se houver erro na API (ex: token inválido, Firestore indisponível)
+  if (error) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        <Header />
+        <div className="min-h-screen flex flex-col items-center justify-center text-red-500 px-4 text-center">
+          <p className="text-lg font-medium">Não foi possível carregar seu cartão.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700"
+          >
+            Tentar novamente
+          </button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Caso não tenha cartão (embora o SWR não deva retornar isso se hasCartao=false, pois redireciona)
+  if (!cartaoData?.hasCartao) {
+    return null;
+  }
 
   const { nome, cardNumber, transacoes } = cartaoData;
 
@@ -95,11 +131,9 @@ export default function MeuCartaoPage() {
       <Header />
       <main className="flex-grow px-4 pt-24 pb-8 sm:pt-28 sm:pb-12">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Meu Cartão</h1>
-       
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <div className="space-y-6">
-          {/* Cartão visual */}
             <div className="relative flex justify-center mb-8">
               <Image
                 src="/images/cartaouser.svg"
@@ -108,20 +142,14 @@ export default function MeuCartaoPage() {
                 height={300}
                 className="object-contain w-full max-w-xs select-none"
               />
-              <div className="font-bold text-3xl text-white absolute top-[70%] left-[10%]
-              text-gray-800   whitespace-pre-line break-words overflow-hidden">
+              <div className="font-bold text-3xl text-gray-800 absolute top-[70%] left-[10%] whitespace-pre-line break-words overflow-hidden">
                 {nome}
               </div>
-              <div className="font-semibold text-white text-xs absolute top-[80%]
-              left-[10%] text-gray-800   whitespace-pre-line break-words overflow-hidden">
+              <div className="font-semibold text-gray-800 text-xs absolute top-[80%] left-[10%] whitespace-pre-line break-words overflow-hidden">
                 {cardNumber}
               </div>
             </div>
-            
-
-          </div> 
-
-
+          </div>
         </div>
 
         {/* Transações */}
