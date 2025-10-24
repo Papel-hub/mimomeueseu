@@ -49,7 +49,7 @@ export default function Header() {
     { href: '/cestas', label: 'Cestas' },
     { href: '/cartao', label: 'Cartão' },
     { href: '/carta', label: 'Carta de mensagem' },
-    { href: '/item-supresa', label: 'Itens supresa' },
+    { href: '/parcerias', label: 'Parrcerias' },
   ];
 
   return (
@@ -117,13 +117,6 @@ export default function Header() {
                     onClick={() => setIsUserMenuOpen(false)}
                   >
                     Afiliados
-                  </Link>
-                  <Link
-                    href="/Parcerias"
-                    className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    Parcerias
                   </Link>
                   <Link
                     href="/conta"
