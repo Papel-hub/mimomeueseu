@@ -172,33 +172,43 @@ const handleAddToCart = () => {
 
         <div className="bg-white rounded-xl shadow-sm p-6 space-y-6 max-w-2xl mx-auto">
 
-        <div className="relative flex justify-center">
-          {/* A imagem da carta */}
-          <Image
-            src="/images/carta.svg"
-            alt="Cartão de mensagem"
-            width={450}
-            height={450}
-            className="object-contain w-full max-w-xs select-none"
-          />
-           <div className="font-semibold text-xs absolute
-            top-[50%] left-[13%] text-gray-800 w-[30%] h-[4%]
-            whitespace-pre-line break-words overflow-hidden">
-              {!isChecked && from ? `${from}` : 'Digite o nome'}
-            </div>
-            <div className="font-semibold text-xs absolute
-             top-[54.5%] left-[15%] text-gray-800 w-[30%] h-[4%]
-             whitespace-pre-line break-words overflow-hidden">
-              {to ? `${to}` : 'Digite o nome'}
-            </div>
+          {/* Visual da carta — ajustado para mobile */}
+<div className="relative flex justify-center">
+  <Image
+    src="/images/cartae.svg"
+    alt="Cartão de mensagem"
+    width={500}
+    height={500}
+    className="w-full h-auto select-none"
+  />
 
-            <div className="mt-2 w-[35%] text-xs absolute
-             top-[62%] left-[8%] text-gray-700 italic 
-             whitespace-pre-line break-words
-              max-h-[120px] overflow-hidden">
-              {message || 'Sua mensagem...'}
-            </div>
-        </div>
+  {/* De: */}
+  <div className="font-semibold absolute text-[10px] sm:text-xs
+    top-[49%] sm:top-[50%] left-[13%] sm:left-[13%]
+    w-[32%] sm:w-[31%] h-[5%]
+    text-gray-500
+    whitespace-pre-line break-words overflow-hidden leading-tight">
+    {!isChecked && from ? from : 'Nome'}
+  </div>
+
+  {/* Para: */}
+  <div className="font-semibold absolute text-[10px] sm:text-xs
+    top-[54%] sm:top-[54.5%] left-[15%] sm:left-[15%]
+    w-[30%] sm:w-[33%] h-[5%]
+    text-gray-500
+    whitespace-pre-line break-words overflow-hidden leading-tight">
+    {to || 'Nome'}
+  </div>
+
+  {/* Mensagem: */}
+  <div className="absolute text-[10px] sm:text-xs
+    top-[62%] sm:top-[63%] left-[7%] sm:left-[8%]
+    w-[36%] sm:w-[35%] text-gray-500 italic
+    whitespace-pre-line break-words sm:max-h-[140px] max-h-[60px] 
+    overflow-hidden leading-tight">
+    {message || 'Sua mensagem...'}
+  </div>
+</div>
 
 
           <div className="flex justify-center items-center gap-3 font-sans">

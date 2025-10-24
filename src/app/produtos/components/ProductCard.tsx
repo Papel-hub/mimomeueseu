@@ -56,7 +56,7 @@ const CestasCard = ({
     {showViewDetails && (
       <div className="px-4 pb-4">
         <Link
-          href={`/detalhes/${id}`}
+          href={`/cestas/${id}`}
           className="block w-full text-center bg-red-900 hover:bg-red-800 text-white py-2 px-4 rounded-full font-medium transition-colors"
         >
           Ver detalhes

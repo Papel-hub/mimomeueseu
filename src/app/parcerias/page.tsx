@@ -6,8 +6,10 @@ import Footer from '@/components/Footer';
 import { useRouter } from 'next/navigation';
 import ParceirosCard from '@/components/ParceirosCard';
 import { useAuth } from '@/contexts/AuthContext';
-import { db } from '@/lib/firebaseConfig'; // ← IMPORTADO
-import { doc, getDoc } from 'firebase/firestore'; // ← IMPORTADO
+import { db } from '@/lib/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+import 'react-phone-input-2/lib/style.css';
+import PhoneInput from 'react-phone-input-2';
 
 export default function ParceriasPage() {
   const { user } = useAuth();
@@ -16,6 +18,7 @@ export default function ParceriasPage() {
   const [meetLink, setMeetLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [, setHasCalendarAccess] = useState(false);
+  const [contato, setContato] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -26,41 +29,38 @@ export default function ParceriasPage() {
           const data = userDoc.data();
           setHasCalendarAccess(!!data?.googleCalendarTokens?.refreshToken);
         } catch (err) {
-          console.error("Erro ao verificar acesso:", err);
+          console.error('Erro ao verificar acesso:', err);
         }
       };
       checkAccess();
     }
   }, [user]);
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const nomeEmpresa = formData.get('nomeEmpresa') as string;
+    const email = formData.get('email') as string;
+    const produto = formData.get('produto') as string;
 
-  const formData = new FormData(e.currentTarget);
-  const nomeEmpresa = formData.get('nomeEmpresa') as string;
-  const email = formData.get('email') as string;
-  const contato = formData.get('contato') as string;
-  const produto = formData.get('produto') as string;
+    if (!nomeEmpresa || !email || !contato || !produto) {
+      setError('Por favor, preencha todos os campos.');
+      return;
+    }
 
-  if (!nomeEmpresa || !email || !contato || !produto) {
-    setError("Por favor, preencha todos os campos.");
-    return;
-  }
-
-  // redirecionar para a página de agendamento
-  router.push(
-    `/agendar?nomeEmpresa=${encodeURIComponent(nomeEmpresa)}&email=${encodeURIComponent(email)}&contato=${encodeURIComponent(contato)}&produto=${encodeURIComponent(produto)}`
-  );
-};
-
+    router.push(
+      `/agendar?nomeEmpresa=${encodeURIComponent(nomeEmpresa)}&email=${encodeURIComponent(
+        email
+      )}&contato=${encodeURIComponent(contato)}&produto=${encodeURIComponent(produto)}`
+    );
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       <main className="flex-grow sm:px-35 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
-        {/* ... conteúdo existente ... */}
-                <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Parcerias</h1>
+        <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Parcerias</h1>
         <br />
         <p className="text-sm text-gray-600 text-center mb-8">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem, provident sequi accusantium
@@ -72,7 +72,7 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 
         <div className="bg-white p-6 max-w-2xl mx-auto mb-12">
           <button
-          onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsModalOpen(true)}
             className="w-full flex items-center font-bold bg-[#FCE1D0] text-[#F2A97A] justify-center rounded-full gap-2 p-3 hover:bg-red-50 transition"
           >
             Preencher formulário
@@ -81,14 +81,14 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-6">Nossos parceiros:</h2>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
               <ParceirosCard key={i} image="/images/p1.png" title="Cesta Romântica" />
             ))}
           </div>
         </div>
-        {/* Modal de formulário */}
+
+        {/* Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black/40 flex justify-center px-4 items-center z-50">
             <div className="bg-white rounded-2xl p-8 shadow-xl w-full max-w-lg relative">
@@ -133,6 +133,7 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
                     Cadastro de Parceria
                   </h2>
                   {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Nome da Empresa</label>
@@ -158,12 +159,25 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Contato</label>
-                      <input
-                        name="contato"
-                        type="tel"
-                        className="w-full mt-1 p-2 border border-gray-300 rounded-lg"
-                        placeholder="+55 (11) 99999-9999"
-                        required
+                      <PhoneInput
+                        country={'ao'}
+                        value={contato}
+                        onChange={(value) => setContato(value)}
+                        inputProps={{
+                          name: 'contato',
+                          required: true,
+                        }}
+                        inputStyle={{
+                          width: '100%',
+                          borderRadius: '0.5rem',
+                          borderColor: '#d1d5db',
+                          height: '42px',
+                        }}
+                        buttonStyle={{
+                          borderColor: '#d1d5db',
+                          borderTopLeftRadius: '0.5rem',
+                          borderBottomLeftRadius: '0.5rem',
+                        }}
                       />
                     </div>
 

@@ -11,6 +11,7 @@ import Acao from '../components/Acao';
 import { db } from '@/lib/firebaseConfig';
 import { doc, getDoc, DocumentData } from 'firebase/firestore';
 import { Cesta } from '@/types/cesta';
+import {  FaShoppingBasket, FaGift } from "react-icons/fa";
 
 export default function CestaDetailPage() {
   const params = useParams();
@@ -75,8 +76,9 @@ export default function CestaDetailPage() {
       } finally {
         setLoading(false);
       }
-    };
+      
 
+    };
     fetchCesta();
   }, [id]);
 
@@ -134,32 +136,52 @@ export default function CestaDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Galeria */}
           <div className="flex flex-row gap-4">
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 items-center">
+              {/* Botão do vídeo (se existir) */}
               {cesta.video && (
                 <button
                   onClick={() => setMainMedia(cesta.video!)}
-                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${mainMedia === cesta.video ? 'border-green-500' : 'border-transparent'}`}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    mainMedia === cesta.video
+                      ? 'border-green-500'
+                      : 'border-transparent hover:border-gray-300'
+                  }`}
                 >
-                  <div className="bg-black text-white text-xs flex items-center justify-center w-full h-full">▶️</div>
+                  <div className="bg-black text-white text-xs flex items-center justify-center w-full h-full">
+                    ▶️
+                  </div>
                 </button>
               )}
-              {cesta.image.map((img, idx) => (
+
+              {/* Limita a 3 imagens */}
+              {cesta.image.slice(0, 3).map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleThumbnailClick(idx)}
-                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${!mainMedia && selectedImageIndex === idx ? 'border-green-500' : 'border-transparent'}`}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    !mainMedia && selectedImageIndex === idx
+                      ? 'border-green-500'
+                      : 'border-transparent hover:border-gray-300'
+                  }`}
                 >
-                  <Image src={img} alt={`Thumbnail ${idx + 1}`} width={64} height={64} className="object-cover w-full h-full" />
+                  <Image
+                    src={img}
+                    alt={`Thumbnail ${idx + 1}`}
+                    width={64}
+                    height={64}
+                    className="object-cover w-full h-full"
+                  />
                 </button>
               ))}
             </div>
+
 
             <div className="bg-gray-100 rounded-xl flex items-center justify-center w-full max-w-[500px] max-h-[425px]">
               {mainMedia ? (
                 <video src={mainMedia} controls className="w-full h-full object-contain rounded-xl" poster={cesta.image[0]} />
               ) : (
                 <Image src={cesta.image[selectedImageIndex]} alt={cesta.title} width={400} height={400} className="object-contain w-full h-full" />
-              )}
+               )}
             </div>
           </div>
 
@@ -200,12 +222,27 @@ export default function CestaDetailPage() {
             <p className="text-2xl font-bold text-red-900">VALOR: R$ {finalPrice.toFixed(2)}</p>
 
             <div className="p-4 bg-red-50 rounded-lg">
-              <h3 className="font-medium text-red-900">Envio pelos Correios/Transportadoras:</h3>
+              <h3 className="font-medium text-red-900">⚠️Envio pelos Correios/Transportadoras:</h3>
               <ul className="mt-2 text-sm text-gray-700 space-y-1">
                 <li>• Apenas maletas e produtos não perecíveis</li>
                 <li>• Outras opções disponíveis via delivery</li>
               </ul>
             </div>
+             <div className="mt-6 space-y-4">
+             <button className="w-full flex items-center justify-center border border-red-900
+                bg-red-900 text-white font-medium py-2 px-4 rounded-full transition">   
+                  <FaShoppingBasket  className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Escolher esta cesta
+                </button>
+            
+                <button className="w-full flex items-center justify-center border border-red-900
+                        text-red-900 font-medium py-2 px-4 rounded-full transition">
+                        
+                  <FaGift  className="h-5 w-5 mr-2" aria-hidden="true"/>
+                  Presentear
+                </button>
+                </div>
+           
           </div>
         </div>
 

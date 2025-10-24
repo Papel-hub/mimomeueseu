@@ -1,36 +1,29 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-export interface CestasCardProps {
+export interface ProdutosCardProps {
   id: string;
   title: string;
   price?: number;
   rating?: number; // ✅ adicione esta linha
   image: string;
-  bestseller?: boolean;
   showPrice?: boolean;
-  showViewDetails?: boolean;
+  showViewAdd?: boolean;
 }
 
 
 
-const CestasCard = ({
+const ProdutosCard = ({
   id,
   title,
   price,
   image,
-  bestseller, // ✅ desestruturado
   showPrice = true,
-  showViewDetails = false,
-}: CestasCardProps) => (
+  showViewAdd = false,
+}: ProdutosCardProps) => (
   <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden relative">
     <Link href={`/detalhes/${id}`} className="block">
-      {/* Badge "Mais Vendido" */}
-      {bestseller && (
-        <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-tr-2xl rounded-bl-2xl z-10">
-          MAIS VENDIDO
-        </div>
-      )}
+
       <div className="h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
         <Image
           src={image}
@@ -53,17 +46,17 @@ const CestasCard = ({
     </Link>
 
     {/* Botão "Ver detalhes" */}
-    {showViewDetails && (
+    {showViewAdd && (
       <div className="px-4 pb-4">
         <Link
-          href={`/detalhes/${id}`}
+          href={`/cestas/${id}`}
           className="block w-full text-center bg-red-900 hover:bg-red-800 text-white py-2 px-4 rounded-full font-medium transition-colors"
         >
-          Ver detalhes
+          Adicionar a Cesta
         </Link>
       </div>
     )}
   </div>
 );
 
-export default CestasCard;
+export default ProdutosCard;

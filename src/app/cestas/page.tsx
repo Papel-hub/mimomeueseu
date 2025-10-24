@@ -19,23 +19,37 @@ export default function CestasPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const snapshot = await getDocs(collection(db, 'cestas'));
+const snapshot = await getDocs(collection(db, 'cestas'));
 
 const lista = snapshot.docs
   .map((doc) => {
     const data = doc.data();
-    return {
-      id: doc.id,
-      title: typeof data.title === 'string' ? data.title : undefined,
-      price: typeof data.price === 'number' ? data.price : undefined,
-      rating: typeof data.rating === 'number' ? data.rating : undefined,
-      image: typeof data.image === 'string' ? data.image : undefined,
-      category: typeof data.category === 'string' ? data.category : undefined,
-      video: typeof data.video === 'string' ? data.video : undefined,
-      bestseller: data.bestseller === true,
-    };
+
+    // Extrai a primeira imagem válida do array, se existir
+    let firstImage = '/images/p1.png'; // fallback padrão
+    if (Array.isArray(data.image) && data.image.length > 0) {
+      // Remove espaços extras e pega a primeira URL válida
+      const cleaned = data.image
+        .map((url: unknown) => (typeof url === 'string' ? url.trim() : ''))
+        .find(url => url.startsWith('http'));
+      if (cleaned) firstImage = cleaned;
+    } else if (typeof data.image === 'string') {
+      // Caso algum documento ainda tenha string (compatibilidade futura)
+      firstImage = data.image.trim();
+    }
+
+return {
+  id: doc.id,
+  title: typeof data.title === 'string' ? data.title.trim() : undefined,
+  price: typeof data.price === 'number' ? data.price : undefined,
+  rating: typeof data.rating === 'number' ? data.rating : undefined,
+  image: firstImage,
+  category: typeof data.category === 'string' ? data.category.trim() : '', // ← string vazia, não undefined
+  video: typeof data.video === 'string' ? data.video.trim() : undefined,
+  bestseller: data.bestseller === true,
+};
   })
-  .filter((item) => item.title && item.image); // sem type guard
+  .filter((item) => item.title && item.image); // agora image nunca será undefined
 
 setProducts(lista as Product[]);
 

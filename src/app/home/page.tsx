@@ -20,21 +20,28 @@ export default function HomePage() {
       try {
         const snapshot = await getDocs(collection(db, 'cestas'));
         
-        // Validação segura dos dados do Firestore
 const lista = snapshot.docs
   .map(doc => {
     const data = doc.data();
+
+    // Extrai a primeira imagem válida
+    let imageUrl: string | undefined;
+    if (Array.isArray(data.image) && data.image.length > 0) {
+      imageUrl = data.image[0]?.trim();
+    } else if (typeof data.image === 'string') {
+      imageUrl = data.image.trim();
+    }
 
     return {
       id: doc.id,
       title: typeof data.title === 'string' ? data.title : undefined,
       price: typeof data.price === 'number' ? data.price : undefined,
       rating: typeof data.rating === 'number' ? data.rating : undefined,
-      image: typeof data.image === 'string' ? data.image : undefined,
-      bestseller: data.bestseller === true, 
+      image: imageUrl,
+      bestseller: data.bestseller === true,
     };
   })
-  .filter(item => item.title && item.image); // opcional: só mostra se tiver título e imagem
+  .filter(item => item.title && item.image); 
 
         setProdutos(lista);
       } catch (error) {

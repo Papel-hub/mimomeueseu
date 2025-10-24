@@ -48,7 +48,8 @@ export default function Header() {
     { href: '/home', label: 'Home' },
     { href: '/cestas', label: 'Cestas' },
     { href: '/cartao', label: 'Cartão' },
-    { href: '/parcerias', label: 'Parcerias' },
+    { href: '/carta', label: 'Carta de mensagem' },
+    { href: '/item-supresa', label: 'Itens supresa' },
   ];
 
   return (
@@ -118,6 +119,13 @@ export default function Header() {
                     Afiliados
                   </Link>
                   <Link
+                    href="/Parcerias"
+                    className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Parcerias
+                  </Link>
+                  <Link
                     href="/conta"
                     className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
                     onClick={() => setIsUserMenuOpen(false)}
@@ -155,7 +163,7 @@ export default function Header() {
 
             {/* Botão Criar Cesta */}
             <Link 
-            href="/cestas/personalizar"
+            href="/criar-cestas"
             className="border border-white flex items-center justify-center gap-2 font-bold p-3  transition text-center text-white px-3  text-xs sm:text-sm font-medium rounded-full hover:bg-red-800 whitespace-nowrap">
               + Criar Cesta
             </Link>
