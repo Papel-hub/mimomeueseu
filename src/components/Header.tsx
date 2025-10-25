@@ -48,7 +48,7 @@ export default function Header() {
     { href: '/home', label: 'Home' },
     { href: '/cestas', label: 'Cestas' },
     { href: '/cartao', label: 'Cartão' },
-    { href: '/carta', label: 'Carta de mensagem' },
+    { href: '/carta', label: 'Cartão de mensagem' },
     { href: '/parcerias', label: 'Parrcerias' },
   ];
 

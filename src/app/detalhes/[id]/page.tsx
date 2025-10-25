@@ -11,7 +11,8 @@ import Acao from '../components/Acao';
 import { db } from '@/lib/firebaseConfig';
 import { doc, getDoc, DocumentData } from 'firebase/firestore';
 import { Cesta } from '@/types/cesta';
-import {  FaShoppingBasket, FaGift } from "react-icons/fa";
+import CestaActions from '../components/CestaActions';
+import { FaEdit } from 'react-icons/fa';
 
 export default function CestaDetailPage() {
   const params = useParams();
@@ -223,26 +224,13 @@ export default function CestaDetailPage() {
 
             <div className="p-4 bg-red-50 rounded-lg">
               <h3 className="font-medium text-red-900">⚠️Envio pelos Correios/Transportadoras:</h3>
-              <ul className="mt-2 text-sm text-gray-700 space-y-1">
+              <ul className="mt-2 text-sm px-4 text-gray-700 space-y-1">
                 <li>• Apenas maletas e produtos não perecíveis</li>
                 <li>• Outras opções disponíveis via delivery</li>
               </ul>
             </div>
-             <div className="mt-6 space-y-4">
-             <button className="w-full flex items-center justify-center border border-red-900
-                bg-red-900 text-white font-medium py-2 px-4 rounded-full transition">   
-                  <FaShoppingBasket  className="h-5 w-5 mr-2" aria-hidden="true" />
-                  Escolher esta cesta
-                </button>
-            
-                <button className="w-full flex items-center justify-center border border-red-900
-                        text-red-900 font-medium py-2 px-4 rounded-full transition">
-                        
-                  <FaGift  className="h-5 w-5 mr-2" aria-hidden="true"/>
-                  Presentear
-                </button>
-                </div>
-           
+
+           <CestaActions cestaId={id!} selectedFormat={selectedFormat} />
           </div>
         </div>
 
@@ -268,7 +256,11 @@ export default function CestaDetailPage() {
 
             <div className="mt-6 space-y-4">
               <Link href={`/personalizar/${id}`} className="block">
-                <button className="w-full bg-red-900 text-white py-3 rounded-full font-semibold hover:bg-red-800 transition">Personalizar cesta</button>
+                <button className="w-full flex items-center justify-center border border-red-900 bg-red-900 text-white font-medium
+                 py-3 px-4 rounded-full transition hover:bg-red-800">
+                  <FaEdit className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Personalizar cesta
+                  </button>
               </Link>
             </div>
           </div>

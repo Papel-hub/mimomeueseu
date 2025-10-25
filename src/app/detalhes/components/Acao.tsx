@@ -57,7 +57,7 @@ export default function Acao() {
 
         <button
           onClick={handleView3D}
-          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-300 hover:border-gray-300 transition-all"
+          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-3000 hover:border-gray-300 transition mt-3"
         >
           <VideoCameraIcon className="h-5 w-5 text-gray-600" />
           Ver em 3D + VR
@@ -79,7 +79,7 @@ export default function Acao() {
 
         <button
           onClick={handleRecommend}
-          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray0 hover:border-gray-300 transition mb-3"
+          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-3000 hover:border-gray-300 transition mt-3"
         >
           <HeartIcon className="h-5 w-5  text-gray-600" />
           Indicar para um amigo
@@ -87,7 +87,7 @@ export default function Acao() {
 
         <button
           onClick={handleInvite}
-          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-300 hover:border-blue-300 transition"
+          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-3000 hover:border-gray-300 transition mt-3"
         >
           <ChatBubbleBottomCenterIcon className="h-5 w-5 text-gray-600" />
           Convidar por mensagem
