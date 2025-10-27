@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import Header from '@/components/Header';
@@ -61,8 +61,8 @@ export default function MeuCartaoPage() {
     return () => unsubscribe();
   }, []);
 
-  // Fetcher usando token sempre atualizado
-  const fetcher = async (): Promise<CartaoData> => {
+  // Fetcher que pega token fresco a cada chamada
+  const fetcher = useCallback(async (): Promise<CartaoData> => {
     if (!user) throw new Error('Não autenticado');
 
     const freshToken = await getIdToken(user, true);
@@ -89,14 +89,26 @@ export default function MeuCartaoPage() {
     }
 
     return data as CartaoData;
-  };
+  }, [user]);
 
-  // SWR
-  const { data: cartaoData, error, isLoading } = useSWR<CartaoData>(
+  // SWR com refreshInterval (atualiza a cada 1 hora)
+  const { data: cartaoData, error, isLoading, mutate } = useSWR<CartaoData>(
     user ? '/api/user/cartao' : null,
     fetcher,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: false,
+      refreshInterval: 60 * 60 * 1000, // 1 hora
+    }
   );
+
+  // Revalida manualmente a cada 30 min se quiser ainda mais segurança
+  useEffect(() => {
+    const interval = setInterval(() => {
+      mutate();
+    }, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [mutate]);
 
   // Redireciona se não tiver cartão
   useEffect(() => {
@@ -119,7 +131,7 @@ export default function MeuCartaoPage() {
         <div className="min-h-screen flex flex-col items-center justify-center text-red-500 px-4 text-center">
           <p className="text-lg font-medium">Não foi possível carregar seu cartão.</p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => mutate()}
             className="mt-4 px-4 py-2 bg-rose-600 text-white rounded-md hover:bg-rose-700"
           >
             Tentar novamente
