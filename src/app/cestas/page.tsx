@@ -86,7 +86,9 @@ setProducts(lista as Product[]);
 
         {/* Produtos */}
         {loading ? (
-          <p className="text-center text-gray-500 mt-10">Carregando Cestas...</p>
+          <div className="flex justify-center items-center h-80">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-red-600 border-r-transparent"></div>
+          </div>
         ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (

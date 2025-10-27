@@ -112,14 +112,14 @@ export default function Header() {
                     Minha conta
                   </Link>
                   <Link
-                    href="/conta"
+                    href="/afiliados"
                     className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
                     Afiliados
                   </Link>
                   <Link
-                    href="/conta"
+                    href="/influenciador"
                     className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
@@ -127,12 +127,12 @@ export default function Header() {
                   </Link>
 
                   <Link
-                    href="/conta"
+                    href="/pessoasamo"
                     className="block px-4 py-2  border-b border-gray-300 text-sm hover:bg-red-50 hover:text-red-900"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
                     Pessoas que amo
-                  </Link>                 
+                  </Link>                  
                   {user ? (
                     <button
                       className="w-full text-left px-4  py-2 text-sm hover:bg-red-50 hover:text-red-900"
@@ -157,7 +157,7 @@ export default function Header() {
             {/* Botão Criar Cesta */}
             <Link 
             href="/criar-cestas"
-            className="border border-white flex items-center justify-center gap-2 font-bold p-3  transition text-center text-white px-3  text-xs sm:text-sm font-medium rounded-full hover:bg-red-800 whitespace-nowrap">
+            className="border border-white flex items-center justify-center gap-2 p-3  transition text-center text-white px-3  text-xs sm:text-sm font-medium rounded-full hover:bg-red-800 whitespace-nowrap">
               + Criar Cesta
             </Link>
 
@@ -225,7 +225,8 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-red-50 hover:text-red-900"
+                className="block px-3 py-2 rounded-md text-base font-medium
+                 text-gray-700 hover:bg-red-50 hover:text-red-900"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {link.label}
@@ -234,14 +235,41 @@ export default function Header() {
             <div className="pt-3 ">
               <Link
                 href="/conta"
-                className="block px-3 py-2 rounded-md   border-gray-300 text-base font-medium text-gray-700 hover:bg-red-50 hover:text-red-900"
+                className="block px-3 py-2 rounded-md   border-gray-300 text-base font-medium
+                 text-gray-700 hover:bg-red-50 hover:text-red-900"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Minha conta
               </Link>
+                  <Link
+                    href="/afiliados"
+                className="block px-3 py-2 rounded-md text-base font-medium
+                 text-gray-700 hover:bg-red-50 hover:text-red-900"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Afiliados
+                  </Link>
+                  <Link
+                    href="/influenciador"
+                className="block px-3 py-2 rounded-md text-base font-medium
+                 text-gray-700 hover:bg-red-50 hover:text-red-900"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Ser um influenciador
+                  </Link>
+
+                  <Link
+                    href="/pessoasamo"
+                className="block px-3 py-2 rounded-md text-base font-medium
+                 text-gray-700 hover:bg-red-50 hover:text-red-900"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Pessoas que amo
+                  </Link> 
                   {user ? (
                     <button
-                      className="w-full text-left px-4 border-t border-gray-300 py-2 text-sm hover:bg-red-50 hover:text-red-900"
+                className="block px-3 py-2 rounded-md text-base font-medium
+                 text-gray-700 hover:bg-red-50 hover:text-red-900"
                       onClick={() => signOut(auth)}
                     >
                       Sair
@@ -249,7 +277,8 @@ export default function Header() {
                   ) : (
                     <Link
                       href="/auth/login"
-                      className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
+                className="block px-3 py-2 rounded-md text-base font-medium
+                 text-gray-700 hover:bg-red-50 hover:text-red-900"
                     >
                       Entrar
                     </Link>

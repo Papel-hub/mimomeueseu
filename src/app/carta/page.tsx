@@ -28,42 +28,38 @@ export default function MensagemPage() {
 
   const router = useRouter();
 
-const handleGoToNextStep = () => {
-  const mensagemData = {
-    from: isChecked ? 'Anônimo' : from || '',
-    to: to || '',
-    message: message || '',
-    format: selectedFormat,
-    price: prices[selectedFormat],
-    cestaId: id || null,
-    timestamp: Date.now(),
+  const handleGoToNextStep = () => {
+    const mensagemData = {
+      from: isChecked ? 'Anônimo' : from || '',
+      to: to || '',
+      message: message || '',
+      format: selectedFormat,
+      price: prices[selectedFormat],
+      cestaId: id || null,
+      timestamp: Date.now(),
+    };
+
+    localStorage.setItem('mimo_mensagem', JSON.stringify(mensagemData));
+
+    // Determina quais mídias são necessárias
+    const needsAudio = [
+      'digital_audio',
+      'digital_fisico_audio',
+      'full_premium',
+    ].includes(selectedFormat);
+
+    const needsVideo = ['digital_video', 'full_premium'].includes(selectedFormat);
+
+    if (needsAudio && needsVideo) {
+      router.push('/midia?tipo=both');
+    } else if (needsVideo) {
+      router.push('/midia?tipo=video');
+    } else if (needsAudio) {
+      router.push('/midia?tipo=audio');
+    } else {
+      router.push('/entrega');
+    }
   };
-
-  localStorage.setItem('mimo_mensagem', JSON.stringify(mensagemData));
-
-  // Define o tipo de mídia necessário (se houver)
-  let mediaType: 'audio' | 'video' | null = null;
-
-  if (
-    selectedFormat === 'digital_video' ||
-    selectedFormat === 'full_premium'
-  ) {
-    mediaType = 'video';
-  } else if (
-    selectedFormat === 'digital_audio' ||
-    selectedFormat === 'digital_fisico_audio'
-  ) {
-    mediaType = 'audio';
-  }
-
-  if (mediaType) {
-    // Redireciona para a página de mídia com o tipo específico
-    router.push(`/midia?tipo=${mediaType}`);
-  } else {
-    // Vai direto para entrega
-    router.push('/entrega');
-  }
-};
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -103,14 +99,14 @@ const handleGoToNextStep = () => {
             />
 
             <div className="pt-2">
-<button
-  onClick={handleGoToNextStep}
-  className="w-full font-semibold border border-red-900 text-white py-3 rounded-full hover:bg-red-800 bg-red-900 transition flex justify-center items-center gap-2"
->
-  {prices[selectedFormat] === 0
-    ? 'Continuar'
-    : `Continuar — R$ ${prices[selectedFormat].toFixed(2)}`}
-</button>
+              <button
+                onClick={handleGoToNextStep}
+                className="w-full font-semibold border border-red-900 text-white py-3 rounded-full hover:bg-red-800 bg-red-900 transition flex justify-center items-center gap-2"
+              >
+                {prices[selectedFormat] === 0
+                  ? 'Continuar'
+                  : `Continuar — R$ ${prices[selectedFormat].toFixed(2)}`}
+              </button>
             </div>
           </div>
         </div>

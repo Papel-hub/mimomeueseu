@@ -4,7 +4,6 @@ import {  useParams } from 'next/navigation';
 import React, { useState, useEffect, useMemo } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Btn from '../components/Btn';
 import Link from 'next/link';
 import {
   ArrowLeftIcon,
@@ -255,19 +254,6 @@ export default function PersonalizarPage() {
               Nenhuma opção de personalização disponível.
             </p>
           )}
-
-          {/* 🔹 Áudio/Vídeo */}
-          <div className="border-t border-gray-300 pt-6 mt-6">
-            <h2 className="font-semibold text-lg text-gray-800 mb-3">
-              Vídeo ou Áudio Personalizado (opcional)
-            </h2>
-            <p className="text-xs text-gray-500 mb-3">
-              Adicional de R${' '}
-              {(cesta.mediaPersonalizationFee ?? 0).toFixed(2)} será adicionado.
-            </p>
-            <Btn/>
-
-          </div>
 
           {/* 🔹 Resumo de preço */}
           <div className="mt-8 bg-gray-50 rounded-xl p-6">

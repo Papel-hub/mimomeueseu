@@ -1,4 +1,3 @@
-// app/midia/MidiaClient.tsx
 'use client';
 
 import {
@@ -10,55 +9,38 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { use } from 'react'; // ← Importante!
+import { use } from 'react';
 
-
-export default function MidiaClient({
-  searchParams,
+// Componente reutilizável para gravação/upload de mídia
+function MediaRecorderSection({
+  type,
+  onMediaReady,
 }: {
-  searchParams: Promise<{ tipo?: string }>;
+  type: 'audio' | 'video';
+  onMediaReady: (url: string) => void;
 }) {
-  const resolvedParams = use(searchParams); // ← Resolve a Promise
-  const tipo = resolvedParams.tipo;
-
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
-
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (tipo !== 'audio' && tipo !== 'video') {
-      setError('Tipo de mídia inválido.');
-    }
-  }, [tipo]);
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current?.state !== 'inactive') {
-      mediaRecorderRef.current?.stop();
-    }
-  };
-
   const startRecording = async () => {
     if (isRecording) {
-      stopRecording();
+      if (mediaRecorderRef.current?.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
       return;
     }
 
     try {
-      const constraints =
-        tipo === 'audio'
-          ? { audio: true }
-          : { video: true, audio: true };
+      const constraints = type === 'audio' ? { audio: true } : { video: true, audio: true };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       recordedChunksRef.current = [];
       const mimeType =
-        tipo === 'audio'
+        type === 'audio'
           ? MediaRecorder.isTypeSupported('audio/webm')
             ? 'audio/webm'
             : 'audio/ogg'
@@ -79,11 +61,11 @@ export default function MidiaClient({
 
       mediaRecorder.onstop = () => {
         const blob = new Blob(recordedChunksRef.current, {
-          type: tipo === 'audio' ? 'audio/webm' : 'video/webm',
+          type: type === 'audio' ? 'audio/webm' : 'video/webm',
         });
         const url = URL.createObjectURL(blob);
         setMediaUrl(url);
-        localStorage.setItem(`mimo_midia_${tipo}`, url);
+        onMediaReady(url);
         stream.getTracks().forEach((track) => track.stop());
         setIsRecording(false);
       };
@@ -91,10 +73,10 @@ export default function MidiaClient({
       mediaRecorder.start();
       setIsRecording(true);
     } catch (err) {
-      console.error(`Erro ao acessar ${tipo}:`, err);
+      console.error(`Erro ao acessar ${type}:`, err);
       alert(
         `Não foi possível acessar o ${
-          tipo === 'audio' ? 'microfone' : 'câmera/microfone'
+          type === 'audio' ? 'microfone' : 'câmera/microfone'
         }. Verifique as permissões.`
       );
     }
@@ -105,7 +87,7 @@ export default function MidiaClient({
     if (file) {
       const url = URL.createObjectURL(file);
       setMediaUrl(url);
-      localStorage.setItem(`mimo_midia_${tipo}`, url);
+      onMediaReady(url);
     }
   };
 
@@ -113,7 +95,101 @@ export default function MidiaClient({
     fileInputRef.current?.click();
   };
 
+  return (
+    <div className="space-y-4">
+      <button
+        onClick={startRecording}
+        className={`w-full flex items-center justify-center font-medium py-3 px-4 rounded-full transition ${
+          isRecording
+            ? 'bg-red-50 text-red-700 border border-red-500'
+            : 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50'
+        }`}
+      >
+        {isRecording ? (
+          <>
+            <span className="h-2 w-2 bg-red-500 rounded-full animate-pulse mr-2" />
+            Parar {type === 'audio' ? 'Gravação de Áudio' : 'Gravação de Vídeo'}
+          </>
+        ) : (
+          <>
+            {type === 'audio' ? (
+              <MicrophoneIcon className="h-5 w-5 mr-2" />
+            ) : (
+              <VideoCameraIcon className="h-5 w-5 mr-2" />
+            )}
+            {type === 'audio' ? 'Gravar Áudio' : 'Gravar Vídeo'}
+          </>
+        )}
+      </button>
+
+      <button
+        onClick={triggerFileUpload}
+        className="w-full flex items-center justify-center border border-gray-300 font-medium py-3 px-4 rounded-full transition hover:bg-gray-50"
+      >
+        <ArrowUpTrayIcon className="h-5 w-5 mr-2" />
+        Carregar do Dispositivo
+      </button>
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept={type === 'audio' ? 'audio/*' : 'video/*'}
+        onChange={handleFileUpload}
+        className="hidden"
+      />
+
+      {mediaUrl && (
+        <div className="mt-2">
+          <p className="text-sm text-gray-600 mb-2">
+            {type === 'audio' ? 'Áudio selecionado:' : 'Vídeo selecionado:'}
+          </p>
+          {type === 'audio' ? (
+            <audio controls src={mediaUrl} className="w-full" />
+          ) : (
+            <video controls src={mediaUrl} className="w-full rounded" />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function MidiaClient({
+  searchParams,
+}: {
+  searchParams: Promise<{ tipo?: string }>;
+}) {
+  const resolvedParams = use(searchParams);
+  const tipo = resolvedParams.tipo;
+
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (tipo !== 'audio' && tipo !== 'video' && tipo !== 'both') {
+      setError('Tipo de mídia inválido.');
+    }
+  }, [tipo]);
+
+  const handleAudioReady = (url: string) => {
+    setAudioUrl(url);
+    localStorage.setItem('mimo_midia_audio', url);
+  };
+
+  const handleVideoReady = (url: string) => {
+    setVideoUrl(url);
+    localStorage.setItem('mimo_midia_video', url);
+  };
+
   const handleContinue = () => {
+    // Para 'both', ambos devem estar presentes
+    if (tipo === 'both') {
+      if (!audioUrl || !videoUrl) {
+        alert('Por favor, envie ou grave tanto o áudio quanto o vídeo.');
+        return;
+      }
+    }
     router.push('/entrega');
   };
 
@@ -136,76 +212,52 @@ export default function MidiaClient({
       <Header />
       <main className="flex-grow sm:px-16 px-8 pt-24 pb-12">
         <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm p-6 space-y-6">
-          <h1 className="text-2xl font-bold text-gray-900 text-center">
-            {tipo === 'audio' ? 'Mensagem de Áudio' : 'Mensagem em Vídeo'}
-          </h1>
-          <p className="text-gray-600 text-center">
-            {tipo === 'audio'
-              ? 'Grave ou envie uma mensagem de áudio personalizada'
-              : 'Grave ou envie um vídeo com sua mensagem personalizada'}
-          </p>
+          {tipo === 'both' ? (
+            <>
+              <h1 className="text-2xl font-bold text-gray-900 text-center">
+                Mensagem Completa (Áudio + Vídeo)
+              </h1>
+              <p className="text-gray-600 text-center">
+                Grave ou envie sua mensagem de áudio e vídeo personalizados
+              </p>
 
-          <div className="space-y-4">
-            <button
-              onClick={startRecording}
-              className={`w-full flex items-center justify-center font-medium py-3 px-4 rounded-full transition ${
-                isRecording
-                  ? 'bg-red-50 text-red-700 border border-red-500'
-                  : 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              {isRecording ? (
-                <>
-                  <span className="h-2 w-2 bg-red-500 rounded-full animate-pulse mr-2" />
-                  Parar {tipo === 'audio' ? 'Gravação de Áudio' : 'Gravação de Vídeo'}
-                </>
-              ) : (
-                <>
-                  {tipo === 'audio' ? (
-                    <MicrophoneIcon className="h-5 w-5 mr-2" />
-                  ) : (
-                    <VideoCameraIcon className="h-5 w-5 mr-2" />
-                  )}
-                  {tipo === 'audio' ? 'Gravar Áudio' : 'Gravar Vídeo'}
-                </>
-              )}
-            </button>
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800 mb-2">Mensagem de Áudio</h2>
+                  <MediaRecorderSection type="audio" onMediaReady={handleAudioReady} />
+                </div>
 
-            <button
-              onClick={triggerFileUpload}
-              className="w-full flex items-center justify-center border border-gray-300 font-medium py-3 px-4 rounded-full transition hover:bg-gray-50"
-            >
-              <ArrowUpTrayIcon className="h-5 w-5 mr-2" />
-              Carregar do Dispositivo
-            </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept={tipo === 'audio' ? 'audio/*' : 'video/*'}
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-
-            {mediaUrl && (
-              <div className="mt-4">
-                <p className="text-sm text-gray-600 mb-2">
-                  {tipo === 'audio' ? 'Áudio selecionado:' : 'Vídeo selecionado:'}
-                </p>
-                {tipo === 'audio' ? (
-                  <audio controls src={mediaUrl} className="w-full" />
-                ) : (
-                  <video controls src={mediaUrl} className="w-full rounded" />
-                )}
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800 mb-2">Mensagem em Vídeo</h2>
+                  <MediaRecorderSection type="video" onMediaReady={handleVideoReady} />
+                </div>
               </div>
-            )}
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold text-gray-900 text-center">
+                {tipo === 'audio' ? 'Mensagem de Áudio' : 'Mensagem em Vídeo'}
+              </h1>
+              <p className="text-gray-600 text-center">
+                {tipo === 'audio'
+                  ? 'Grave ou envie uma mensagem de áudio personalizada'
+                  : 'Grave ou envie um vídeo com sua mensagem personalizada'}
+              </p>
+              <MediaRecorderSection
+                type={tipo as 'audio' | 'video'}
+                onMediaReady={(url) =>
+                  tipo === 'audio' ? handleAudioReady(url) : handleVideoReady(url)
+                }
+              />
+            </>
+          )}
 
-            <button
-              onClick={handleContinue}
-              className="w-full py-3 px-4 bg-red-900 text-white font-medium rounded-full hover:bg-red-800 transition"
-            >
-              Continuar para entrega
-            </button>
-          </div>
+          <button
+            onClick={handleContinue}
+            className="w-full py-3 px-4 bg-red-900 text-white font-medium rounded-full hover:bg-red-800 transition"
+          >
+            Continuar para entrega
+          </button>
         </div>
       </main>
       <Footer />

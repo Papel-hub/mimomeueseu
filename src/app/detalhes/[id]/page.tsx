@@ -103,7 +103,10 @@ export default function CestaDetailPage() {
       <div className="flex flex-col min-h-screen bg-gray-50">
         <Header />
         <main className="flex-grow flex flex-col items-center justify-center pt-24 px-4 text-center">
-          <p className="text-gray-700 text-lg">Carregando detalhes da cesta...</p>
+          <div className="flex justify-center items-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-red-600 border-r-transparent"></div>
+          </div>
+          <p className="mt-4 text-gray-600">Carregando detalhes da cesta...</p>
         </main>
         <Footer />
       </div>

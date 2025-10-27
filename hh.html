@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Carta interativa</title>
+<style>
+  body { display:flex; align-items:center; justify-content:center; height:100vh; margin:0; background:#f3f4f6; }
+  .card-wrap {
+    width:420px; height:300px;
+    perspective:1200px; /* profundidade 3D */
+  }
+
+  .card {
+    width:100%; height:100%;
+    position:relative;
+    transform-style:preserve-3d;
+    cursor:pointer;
+    user-select:none;
+  }
+
+  .inside, .cover {
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+  }
+
+  /* interior (o que aparece quando abre) */
+  .inside {
+    transform:translateZ(-1px); /* ligeiro rebaixamento para evitar z-fighting */
+    display:flex; align-items:center; justify-content:center;
+    background: white; border-radius:6px; box-shadow:0 8px 20px rgba(0,0,0,.12);
+    padding:16px;
+  }
+
+  /* capa frontal que vamos girar */
+  .cover {
+    transform-origin: left center;
+    transition: transform 700ms cubic-bezier(.2,.9,.25,1);
+    background: white; border-radius:6px; box-shadow:0 10px 30px rgba(0,0,0,.14);
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:auto;
+  }
+
+  /* estado aberto */
+  .card.open .cover {
+    transform: rotateY(-160deg) translateX(-6px); /* ajustar conforme necessário */
+  }
+
+  /* estado inicial fechado (opcional estilos) */
+  .cover .closed-label { font-weight:700; }
+
+  /* pequena animação ao focar via teclado */
+  .card:focus { outline:2px dashed #8ab4ff; outline-offset:6px; }
+</style>
+</head>
+<body>
+
+<div class="card-wrap">
+  <!-- role=button torna clicável para leitores de tela (somente exemplo) -->
+  <div class="card" id="card" tabindex="0" role="button" aria-pressed="false" aria-label="Abrir carta">
+    <!-- interior: coloque aqui o SVG da versão aberta -->
+    <div class="inside" aria-hidden="false">
+      <!-- substitua pelo seu SVG aberto (inline) -->
+      <svg width="360" height="240" viewBox="0 0 360 240" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="360" height="240" rx="8" ry="8" fill="#fff"/>
+        <text x="24" y="40" font-size="18" fill="#111">Olá — esta é a carta aberta!</text>
+        <!-- conteúdo do interior -->
+      </svg>
+    </div>
+
+    <!-- capa: coloque aqui o SVG da versão fechada -->
+    <div class="cover" aria-hidden="false">
+      <!-- substitua pelo seu SVG fechado (inline) -->
+      <svg width="360" height="240" viewBox="0 0 360 240" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="360" height="240" rx="8" ry="8" fill="#fef3c7"/>
+        <text x="24" y="130" font-size="24" class="closed-label">Carta</text>
+        <!-- desenho da capa -->
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+  const card = document.getElementById('card');
+
+  function toggle(e){
+    const open = card.classList.toggle('open');
+    card.setAttribute('aria-pressed', open ? 'true' : 'false');
+  }
+
+  // clicar, tocar ou pressionar Enter/Espaço abre/fecha
+  card.addEventListener('click', toggle);
+  card.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter' || ev.key === ' ' ) { ev.preventDefault(); toggle(); }
+  });
+</script>
+
+</body>
+</html>

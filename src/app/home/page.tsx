@@ -70,7 +70,7 @@ const lista = snapshot.docs
 
           {loading ? (
             <div className="flex justify-center items-center h-80">
-              <p className="text-gray-600">Carregando cestas...</p>
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-red-600 border-r-transparent"></div>
             </div>
           ) : produtos.length === 0 ? (
             <div className="flex justify-center items-center h-80">

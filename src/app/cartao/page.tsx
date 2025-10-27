@@ -9,18 +9,16 @@ import Footer from '@/components/Footer';
 export default function VerificarCartaoPage() {
   const router = useRouter();
   const { hasCartao, loading, error } = useCartaoStatus();
-  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
-    if (!loading && !error && !redirecting) {
-      setRedirecting(true);
+    if (!loading && !error) {
       if (hasCartao) {
         router.push('/meu-cartao');
       } else {
         router.push('/solicitar-cartao');
       }
     }
-  }, [hasCartao, loading, error, redirecting, router]);
+  }, [hasCartao, loading, error,  router]);
 
   const handleRetry = () => {
     // Força refetch no hook (se seu hook tiver essa funcionalidade)
@@ -57,11 +55,9 @@ export default function VerificarCartaoPage() {
       <Header />
       <main className="flex-grow flex flex-col items-center justify-center px-4">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-rose-600 border-r-transparent"></div>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-red-600 border-r-transparent"></div>
           <p className="mt-4 text-gray-600">
-            {redirecting
-              ? 'Redirecionando...'
-              : 'Verificando seu cartão Mimo...'}
+            Verificando seu cartão Mimo...
           </p>
         </div>
       </main>
