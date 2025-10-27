@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartaoStatus } from '@/hook/useCartaoStatus';
 import Header from '@/components/Header';

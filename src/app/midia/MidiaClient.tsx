@@ -26,12 +26,14 @@ function MediaRecorderSection({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const startRecording = async () => {
-    if (isRecording) {
-      if (mediaRecorderRef.current?.state !== 'inactive') {
-        mediaRecorderRef.current.stop();
-      }
-      return;
-    }
+if (isRecording) {
+  const recorder = mediaRecorderRef.current;
+  if (recorder && recorder.state !== 'inactive') {
+    recorder.stop();
+  }
+  return;
+}
+
 
     try {
       const constraints = type === 'audio' ? { audio: true } : { video: true, audio: true };
