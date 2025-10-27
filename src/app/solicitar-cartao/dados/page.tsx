@@ -97,79 +97,80 @@ export default function DadosCartaoPage() {
     }
   };
 
-  // ✅ handleSubmit corrigido — APENAS UM
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
+  setSubmitting(true);
 
-    if (!nome.trim()) {
-      setError('Nome é obrigatório.');
-      return;
+  try {
+    // Validação de campos
+    if (!nome.trim()) throw new Error('Nome é obrigatório.');
+    if (modo === 'presente' && (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
+      throw new Error('E-mail válido é obrigatório para presente.');
     }
-
-    if (isPresente && (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) {
-      setError('E-mail válido é obrigatório para presente.');
-      return;
-    }
-
-    if (isFisico) {
+    if (tipoCartao === 'fisico') {
       const { cep, logradouro, numero, bairro, cidade, estado } = endereco;
-      if (!cep || cep.length !== 8) {
-        setError('CEP inválido.');
-        return;
-      }
-      if (!logradouro.trim() || !numero.trim() || !bairro.trim() || !cidade.trim() || !estado.trim()) {
-        setError('Preencha todos os campos do endereço.');
-        return;
-      }
+      if (!cep || cep.length !== 8) throw new Error('CEP inválido.');
+      if (!logradouro || !numero || !bairro || !cidade || !estado) throw new Error('Preencha todos os campos do endereço.');
     }
 
-    setSubmitting(true);
+    // Usuário autenticado
+    const user = auth.currentUser;
+    if (!user) throw new Error('Usuário não autenticado');
 
-    try {
-      const user = auth.currentUser;
-      if (!user) throw new Error('Usuário não autenticado');
+    // Token Firebase atualizado
+    const token = await user.getIdToken(true);
 
-      const token = await user.getIdToken();
+    const payload: Record<string, unknown> = {
+      tipo: tipoCartao,
+      modo,
+      nome,
+      email: modo === 'presente' ? email : user.email || '',
+      mensagem: modo === 'presente' ? mensagem.trim() : null,
+      ...(tipoCartao === 'fisico' && { endereco }),
+    };
 
-      const payload = {
-        tipo: tipoCartao,
-        modo,
-        nome,
-        email: isPresente ? email : user.email || '',
-        mensagem: isPresente ? mensagem.trim() : null,
-        ...(isFisico && { endereco }),
-      };
+    // URL completa da API
+    const apiUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/solicitar-cartao`;
 
-      const res = await fetch('/api/solicitar-cartao', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
-      const data = await res.json();
+    // Garantir que a resposta seja JSON
+    let data: unknown;
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      throw new Error(`Resposta inesperada da API: ${await res.text()}`);
+    }
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Erro ao solicitar cartão');
-      }
+    if (!res.ok) {
+      const errorMessage =
+        typeof data === 'object' && data !== null && 'error' in data
+          ? (data as { error: string }).error
+          : 'Erro ao solicitar cartão';
+      throw new Error(errorMessage);
+    }
 
-      localStorage.removeItem('mimo_tipo_cartao');
-      localStorage.removeItem('mimo_tipo_entrega');
-      router.push(`/solicitar-cartao/sucesso?tipo=${tipoCartao}&modo=${modo}`);
-} catch (err) {
-  console.error('Erro:', err);
-  if (err instanceof Error) {
-    setError(err.message);
-  } else {
-    setError('Não foi possível concluir a solicitação.');
+    // Limpa localStorage e redireciona
+    localStorage.removeItem('mimo_tipo_cartao');
+    localStorage.removeItem('mimo_tipo_entrega');
+    router.push(`/solicitar-cartao/sucesso?tipo=${tipoCartao}&modo=${modo}`);
+  } catch (err) {
+    console.error('Erro ao solicitar cartão:', err);
+    setError(err instanceof Error ? err.message : 'Não foi possível concluir a solicitação.');
+  } finally {
+    setSubmitting(false);
   }
-} finally {
-  setSubmitting(false);
-}
-  };
+};
+
 
   if (loading) {
     return (

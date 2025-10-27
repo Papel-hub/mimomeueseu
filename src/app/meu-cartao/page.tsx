@@ -48,40 +48,52 @@ export default function MeuCartaoPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
   const [showCardDetails, setShowCardDetails] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
   // Checa autenticação
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthChecked(true);
-      if (currentUser) {
-        const idToken = await getIdToken(currentUser);
-        setToken(idToken);
-      }
     });
     return () => unsubscribe();
   }, []);
 
-  // Fetcher usando token seguro
-  const fetcher = async (url: string): Promise<CartaoData> => {
-    if (!token) throw new Error('Não autenticado');
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
+  // Fetcher usando token sempre atualizado
+  const fetcher = async (): Promise<CartaoData> => {
+    if (!user) throw new Error('Não autenticado');
+
+    const freshToken = await getIdToken(user, true);
+    const apiUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/cartao`;
+
+    const res = await fetch(apiUrl, {
+      headers: { Authorization: `Bearer ${freshToken}` },
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
-      throw new Error(err.error || 'Falha na requisição');
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const text = await res.text();
+      throw new Error(`Resposta inesperada da API: ${text}`);
     }
-    return res.json();
+
+    const data: unknown = await res.json();
+
+    if (!res.ok) {
+      const errorMessage =
+        typeof data === 'object' && data !== null && 'error' in data
+          ? (data as { error: string }).error
+          : 'Erro ao carregar o cartão';
+      throw new Error(errorMessage);
+    }
+
+    return data as CartaoData;
   };
 
-  // Só busca se token existir
+  // SWR
   const { data: cartaoData, error, isLoading } = useSWR<CartaoData>(
-    token ? '/api/user/cartao' : null,
+    user ? '/api/user/cartao' : null,
     fetcher,
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
