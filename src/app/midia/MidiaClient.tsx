@@ -11,7 +11,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { use } from 'react';
 
-// Componente reutilizável para gravação/upload de mídia
+// =======================
+// 🎙️ Componente reutilizável de mídia (com limite 90s)
+// =======================
 function MediaRecorderSection({
   type,
   onMediaReady,
@@ -21,23 +23,25 @@ function MediaRecorderSection({
 }) {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [recordTime, setRecordTime] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const maxDuration = 90; // segundos
 
   const startRecording = async () => {
-if (isRecording) {
-  const recorder = mediaRecorderRef.current;
-  if (recorder && recorder.state !== 'inactive') {
-    recorder.stop();
-  }
-  return;
-}
-
+    if (isRecording) {
+      const recorder = mediaRecorderRef.current;
+      if (recorder && recorder.state !== 'inactive') {
+        recorder.stop();
+      }
+      return;
+    }
 
     try {
-      const constraints = type === 'audio' ? { audio: true } : { video: true, audio: true };
-
+      const constraints =
+        type === 'audio' ? { audio: true } : { video: true, audio: true };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       recordedChunksRef.current = [];
@@ -62,6 +66,8 @@ if (isRecording) {
       };
 
       mediaRecorder.onstop = () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+        setRecordTime(0);
         const blob = new Blob(recordedChunksRef.current, {
           type: type === 'audio' ? 'audio/webm' : 'video/webm',
         });
@@ -74,6 +80,19 @@ if (isRecording) {
 
       mediaRecorder.start();
       setIsRecording(true);
+      setRecordTime(0);
+
+      // ⏱️ Atualiza contador e para aos 90s
+      timerRef.current = setInterval(() => {
+        setRecordTime((prev) => {
+          if (prev >= maxDuration) {
+            mediaRecorder.stop();
+            alert('O tempo máximo de gravação (90 segundos) foi atingido.');
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
     } catch (err) {
       console.error(`Erro ao acessar ${type}:`, err);
       alert(
@@ -84,17 +103,43 @@ if (isRecording) {
     }
   };
 
+  // 🧩 Verifica duração do arquivo antes de aceitar
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    const mediaEl =
+      type === 'audio'
+        ? new Audio(url)
+        : document.createElement('video');
+
+    mediaEl.src = url;
+    mediaEl.onloadedmetadata = () => {
+      const duration = mediaEl.duration;
+      if (duration > maxDuration) {
+        alert(
+          `O ${type === 'audio' ? 'áudio' : 'vídeo'} excede o limite de 90 segundos.`
+        );
+        URL.revokeObjectURL(url);
+        e.target.value = ''; // limpa input
+        return;
+      }
       setMediaUrl(url);
       onMediaReady(url);
-    }
+    };
   };
 
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
   };
 
   return (
@@ -123,6 +168,12 @@ if (isRecording) {
           </>
         )}
       </button>
+
+      {isRecording && (
+        <div className="text-center text-sm text-gray-600">
+          ⏱️ {formatTime(recordTime)} / 01:30
+        </div>
+      )}
 
       <button
         onClick={triggerFileUpload}
@@ -155,6 +206,10 @@ if (isRecording) {
   );
 }
 
+
+// =======================
+// 📦 Página principal
+// =======================
 export default function MidiaClient({
   searchParams,
 }: {
@@ -185,7 +240,6 @@ export default function MidiaClient({
   };
 
   const handleContinue = () => {
-    // Para 'both', ambos devem estar presentes
     if (tipo === 'both') {
       if (!audioUrl || !videoUrl) {
         alert('Por favor, envie ou grave tanto o áudio quanto o vídeo.');
@@ -225,12 +279,16 @@ export default function MidiaClient({
 
               <div className="space-y-8">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-800 mb-2">Mensagem de Áudio</h2>
+                  <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                    Mensagem de Áudio
+                  </h2>
                   <MediaRecorderSection type="audio" onMediaReady={handleAudioReady} />
                 </div>
 
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-800 mb-2">Mensagem em Vídeo</h2>
+                  <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                    Mensagem em Vídeo
+                  </h2>
                   <MediaRecorderSection type="video" onMediaReady={handleVideoReady} />
                 </div>
               </div>
