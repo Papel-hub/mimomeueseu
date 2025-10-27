@@ -28,30 +28,12 @@ export interface CartaoData {
   id: string;
   nome: string;
   cardNumber: string;
-  validade?: string; // opcional
-  cvv?: string;      // opcional
+  validade?: string;
+  cvv?: string;
   transacoes: Transacao[];
 }
 
-// Fetcher com autenticação
-const fetcher = async (url: string): Promise<CartaoData> => {
-  const auth = getAuth();
-  const user = auth.currentUser;
-  if (!user) throw new Error('Não autenticado');
-
-  const token = await getIdToken(user);
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
-    throw new Error(error.error || 'Falha na requisição');
-  }
-
-  return res.json();
-};
-
+// Loading spinner
 const LoadingSpinner = () => (
   <div className="flex flex-col min-h-screen bg-gray-50">
     <Header />
@@ -66,42 +48,58 @@ export default function MeuCartaoPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const [showCardDetails, setShowCardDetails] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
+  // Checa autenticação
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       setAuthChecked(true);
+      if (currentUser) {
+        const idToken = await getIdToken(currentUser);
+        setToken(idToken);
+      }
     });
     return () => unsubscribe();
   }, []);
 
-  const shouldFetch = authChecked && !!user;
-
-  const { data: cartaoData, error, isLoading } = useSWR(
-    shouldFetch ? '/api/user/cartao' : null,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      shouldRetryOnError: false,
+  // Fetcher usando token seguro
+  const fetcher = async (url: string): Promise<CartaoData> => {
+    if (!token) throw new Error('Não autenticado');
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Erro desconhecido' }));
+      throw new Error(err.error || 'Falha na requisição');
     }
+    return res.json();
+  };
+
+  // Só busca se token existir
+  const { data: cartaoData, error, isLoading } = useSWR<CartaoData>(
+    token ? '/api/user/cartao' : null,
+    fetcher,
+    { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
   // Redireciona se não tiver cartão
   useEffect(() => {
     if (!isLoading && cartaoData && !cartaoData.hasCartao) {
-      router.push('/cartao/solicitar-cartao');
+      router.push('/solicitar-cartao');
     }
   }, [cartaoData, isLoading, router]);
 
-  // Loading e erros
   if (!authChecked || isLoading) return <LoadingSpinner />;
+
   if (!user) {
-    router.push('/login');
+    router.push('/auth/login');
     return null;
   }
+
   if (error) {
     return (
       <div className="flex flex-col min-h-screen bg-gray-50">
@@ -119,6 +117,7 @@ export default function MeuCartaoPage() {
       </div>
     );
   }
+
   if (!cartaoData?.hasCartao) return null;
 
   const handleAction = (action: string) => {
