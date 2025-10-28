@@ -112,18 +112,18 @@ export default function Header() {
                     Minha conta
                   </Link>
                   <Link
-                    href="/afiliados"
+                    href="/esposafeliz"
                     className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
-                    Afiliados
+                    Esposa Feliz
                   </Link>
                   <Link
-                    href="/influenciador"
+                    href="/cupidosdamimo"
                     className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
-                    Ser um influenciador
+                    Cupidos da Mimo
                   </Link>
 
                   <Link
@@ -242,20 +242,20 @@ export default function Header() {
                 Minha conta
               </Link>
                   <Link
-                    href="/afiliados"
+                    href="/esposafeliz"
                 className="block px-3 py-2 rounded-md text-base font-medium
                  text-gray-700 hover:bg-red-50 hover:text-red-900"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
-                    Afiliados
+                    Esposa Feliz
                   </Link>
                   <Link
-                    href="/influenciador"
+                    href="/cupidosdamimor"
                 className="block px-3 py-2 rounded-md text-base font-medium
                  text-gray-700 hover:bg-red-50 hover:text-red-900"
                     onClick={() => setIsUserMenuOpen(false)}
                   >
-                    Ser um influenciador
+                    Cupidos da Mimo
                   </Link>
 
                   <Link

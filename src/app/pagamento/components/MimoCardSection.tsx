@@ -17,6 +17,12 @@ export default function MimoCardSection({ cartTotal }: MimoCardSectionProps) {
       <p className="mt-3 text-sm text-gray-500">
         Certifique-se de que seu cartão possui saldo suficiente.
       </p>
+                  <button
+                    className="w-full mt-2 flex items-center justify-center gap-2
+                     p-3 bg-red-900 text-white font-semibold rounded-full hover:bg-red-800 shadow-sm transition-all"
+                  >
+                    Confirmar pagamento
+                  </button>
     </div>
   );
 }

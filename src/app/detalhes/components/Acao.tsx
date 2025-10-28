@@ -10,12 +10,13 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 
-// Import dinâmico do <model-viewer> (só roda no client)
 const ModelViewer = dynamic(() => import('./ModelViewerWrapper'), { ssr: false });
 
 export default function Acao() {
   const [show3D, setShow3D] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [showMentionModal, setShowMentionModal] = useState(false);
+  const [mention, setMention] = useState('');
 
   const handleView3D = () => setShow3D(true);
 
@@ -38,15 +39,33 @@ export default function Acao() {
     }
   };
 
-  const handleRecommend = () => {
-    alert('Indicação enviada com sucesso!');
-  };
-
   const handleInvite = () => {
     const message = encodeURIComponent(
       'Olha essa experiência 3D incrível: ' + window.location.href
     );
     window.open(`https://wa.me/?text=${message}`, '_blank');
+  };
+
+  const handleRecommendSubmit = () => {
+    if (!mention) {
+      alert('Digite o @ do amigo.');
+      return;
+    }
+
+    if (!mention.startsWith('@')) {
+      alert('Inclua o @ antes do nome de usuário.');
+      return;
+    }
+
+    const message = encodeURIComponent(
+      `${mention} olha essa experiência 3D incrível! ${window.location.href}`
+    );
+
+    // Abre o Instagram Direct com a mensagem pré-preenchida
+    window.open(`https://www.instagram.com/direct/new/?text=${message}`, '_blank');
+
+    setShowMentionModal(false);
+    setMention('');
   };
 
   return (
@@ -57,7 +76,7 @@ export default function Acao() {
 
         <button
           onClick={handleView3D}
-          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-3000 hover:border-gray-300 transition mt-3"
+          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-100 hover:border-gray-300 transition mt-3"
         >
           <VideoCameraIcon className="h-5 w-5 text-gray-600" />
           Ver em 3D + VR
@@ -66,7 +85,7 @@ export default function Acao() {
         <button
           onClick={handleShare}
           disabled={isSharing}
-          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-3000 hover:border-gray-300 transition mt-3"
+          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-100 hover:border-gray-300 transition mt-3"
         >
           <ShareIcon className="h-5 w-5 text-gray-600" />
           {isSharing ? 'Compartilhando...' : 'Compartilhar'}
@@ -78,21 +97,55 @@ export default function Acao() {
         <h2 className="font-semibold text-lg text-gray-800 mb-3">Indicar</h2>
 
         <button
-          onClick={handleRecommend}
-          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-3000 hover:border-gray-300 transition mt-3"
+          onClick={() => setShowMentionModal(true)}
+          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-100 hover:border-gray-300 transition mt-3"
         >
-          <HeartIcon className="h-5 w-5  text-gray-600" />
+          <HeartIcon className="h-5 w-5 text-gray-600" />
           Indicar para um amigo
         </button>
 
         <button
           onClick={handleInvite}
-          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-3000 hover:border-gray-300 transition mt-3"
+          className="w-full border py-3 rounded-full flex items-center justify-center gap-2 hover:bg-gray-100 hover:border-gray-300 transition mt-3"
         >
           <ChatBubbleBottomCenterIcon className="h-5 w-5 text-gray-600" />
           Convidar por mensagem
         </button>
       </div>
+
+      {/* Modal de Indicação */}
+      {showMentionModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-[90%] max-w-sm shadow-xl relative">
+            <button
+              onClick={() => setShowMentionModal(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Mencionar amigo</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Digite o <span className="font-medium">@usuário</span> do Instagram para enviar a indicação.
+            </p>
+
+            <input
+              type="text"
+              placeholder="@nomedousuario"
+              value={mention}
+              onChange={(e) => setMention(e.target.value)}
+              className="w-full border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            />
+
+            <button
+              onClick={handleRecommendSubmit}
+              className="w-full bg-gray-900 text-white py-3 rounded-full mt-4 hover:bg-gray-700 transition"
+            >
+              Enviar indicação
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal 3D */}
       {show3D && (

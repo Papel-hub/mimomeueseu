@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 
-export default function InfluenciadorPage() {
+export default function CupidosDaMimoPage() {
   const params = useParams();
   const id = params.id as string;
   const router = useRouter();
@@ -72,7 +72,7 @@ export default function InfluenciadorPage() {
       <Header />
 
       <main className="flex-grow sm:px-16 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
-        <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Seja um Influenciador(a)!</h1>
+        <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Seja um Cupidos da Mimo!</h1>
         <p className="text-sm text-gray-600 text-center mb-8">
           Tem público nas redes sociais? Faça parte do nosso time de parceiros.
         </p>

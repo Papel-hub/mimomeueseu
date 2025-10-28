@@ -148,10 +148,10 @@ export default function CreditCardPaymentSection({ cartTotal }: CreditCardPaymen
             last4: cardNumber.replace(/\s/g, '').slice(-4),
           });
         }}
-        className="w-full bg-rose-600 text-white py-3 px-6 rounded-full font-medium hover:bg-rose-700 transition-colors"
-      >
-        Confirmar pagamento
-      </button>
+                    className="w-full flex items-center justify-center gap-2 p-3 bg-red-900 text-white font-semibold rounded-full hover:bg-red-800 shadow-sm transition-all"
+                  >
+                    Confirmar pagamento
+                  </button>
     </div>
   );
 }

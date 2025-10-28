@@ -1,160 +1,237 @@
 'use client';
-import { useParams } from "next/navigation";
-import React, { useState } from 'react';
+
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebaseConfig';
+import CestasCard from '@/components/CestaCard';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { Product } from '@/types/Product';
+import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
-export default function PagamentoPage() {
-  const params = useParams(); 
-  const id = params.id as string; 
-  const [paymentType, setPaymentType] = useState('');
-  
+export default function PessoasQueAmoPage() {
+  const [produtos, setProdutos] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [form, setForm] = useState({
+    nome: '',
+    cidade: '',
+    aniversario: '',
+    lembreteAniversario: false,
+    lembreteDatas: false,
+  });
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'cestas'));
+        const lista = snapshot.docs
+          .map(doc => {
+            const data = doc.data();
+
+            // Extrai a primeira imagem válida
+            let imageUrl: string | undefined;
+            if (Array.isArray(data.image) && data.image.length > 0) {
+              imageUrl = data.image[0]?.trim();
+            } else if (typeof data.image === 'string') {
+              imageUrl = data.image.trim();
+            }
+
+            return {
+              id: doc.id,
+              title: typeof data.title === 'string' ? data.title : undefined,
+              price: typeof data.price === 'number' ? data.price : undefined,
+              rating: typeof data.rating === 'number' ? data.rating : undefined,
+              image: imageUrl,
+              bestseller: data.bestseller === true,
+            };
+          })
+          .filter(item => item.title && item.image);
+
+        setProdutos(lista);
+      } catch (error) {
+        console.error('Erro ao buscar produtos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const produtosParaExibir = showAll ? produtos : produtos.slice(0, 4);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value, type, checked } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [id]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.nome || !form.cidade || !form.aniversario) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 3000);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
 
-      <main className="flex-1 container mx-auto px-4 py-10">
-        {/* Voltar */}
-        <div className="flex items-center mb-6">
-          <Link
-            href={`/cestas/${id}`}
-            className="text-red-900 hover:underline flex items-center"
-          >
-            <ArrowLeftIcon className="h-5 w-5 mr-1" />
-            Voltar para detalhes
-          </Link>
-        </div>
-
-        {/* Título */}
-        <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">
-          Pagamento
+      <main className="flex-grow sm:px-16 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
+        {/* Cabeçalho */}
+        <h1 className="text-3xl font-bold text-gray-900 text-center mb-2">
+          Pessoas que Amo 
         </h1>
-        <p className="text-sm text-gray-600 text-center mb-8">
-          Escolha uma forma de pagamento e finalize seu pedido.
+        <p className="text-sm text-gray-600 text-center mb-10">
+          Cadastre pessoas especiais para receber lembretes e sugestões de presentes.
         </p>
 
-        {/* Card principal */}
-        <div className="bg-white rounded-2xl shadow-md p-8 space-y-8 max-w-lg mx-auto">
-          {/* Seletor de pagamento */}
+        {/* Formulário principal */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-2xl shadow-md space-y-6
+           max-w-3xl mx-auto p-6 border border-gray-100"
+        >
           <div>
-            <label htmlFor="pagamento" className="block text-sm font-medium text-gray-700 mb-2">
-              Tipo de pagamento
+            <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">
+              Nome completo 
             </label>
-            <select
-              id="pagamento"
-              value={paymentType}
-              onChange={(e) => setPaymentType(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-red-900"
-            >
-              <option value="">Selecione o tipo</option>
-              <option value="pix">PIX</option>
-              <option value="cartao">Cartão</option>
-            </select>
+            <input
+              id="nome"
+              type="text"
+              value={form.nome}
+              onChange={handleChange}
+              placeholder="Ex: Maria Silva"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+            />
           </div>
 
-          {/* Campos dinâmicos */}
-          {paymentType === 'pix' && (
-            <div className="space-y-4 animate-fadeIn">
-              <div className="flex flex-col items-center text-center">
-                <Image
-                  src="/images/qr-pix.png"
-                  alt="QR Code PIX"
-                  width={150}
-                  height={150}
-                  className="rounded-lg border border-gray-200"
+          <div>
+            <label htmlFor="cidade" className="block text-sm font-medium text-gray-700 mb-1">
+              Cidade 
+            </label>
+            <input
+              id="cidade"
+              type="text"
+              value={form.cidade}
+              onChange={handleChange}
+              placeholder="Ex: São Paulo"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="aniversario" className="block text-sm font-medium text-gray-700 mb-1">
+              Data de aniversário 
+            </label>
+            <input
+              id="aniversario"
+              type="date"
+              value={form.aniversario}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+            />
+          </div>
+
+          <section className="mt-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              Lembretes automáticos
+            </h3>
+            <div className="space-y-2">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  id="lembreteAniversario"
+                  type="checkbox"
+                  checked={form.lembreteAniversario}
+                  onChange={handleChange}
+                  className="mr-3 accent-red-900"
                 />
-                <p className="text-sm text-gray-600 mt-3">
-                  Escaneie o QR Code ou copie a chave abaixo:
-                </p>
+                <span className="text-gray-700">
+                  Ativar lembrete de aniversário
+                </span>
+              </label>
+
+              <label className="flex items-center cursor-pointer">
+                <input
+                  id="lembreteDatas"
+                  type="checkbox"
+                  checked={form.lembreteDatas}
+                  onChange={handleChange}
+                  className="mr-3 accent-red-900"
+                />
+                <span className="text-gray-700">
+                  Ativar lembrete de datas especiais
+                </span>
+              </label>
+            </div>
+          </section>
+        {/* Seção de sugestões */}
+        <section className="mt-16">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            Sugestões inteligentes de presentes:
+          </h3>
+
+          {loading ? (
+            <div className="flex justify-center items-center h-40">
+              <div className="h-8 w-8 border-4 border-rose-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : produtos.length === 0 ? (
+            <p className="text-center text-gray-600">Nenhuma cesta encontrada.</p>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {produtosParaExibir.map(produto => (
+                  <CestasCard
+                    key={produto.id}
+                    id={produto.id}
+                    title={produto.title || 'Sem título'}
+                    price={produto.price}
+                    rating={produto.rating}
+                    image={produto.image || '/images/p1.png'}
+                    bestseller={produto.bestseller}
+                    showPrice={false}
+                    showViewDetails={false}
+                  />
+                ))}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Chave PIX</label>
-                <input
-                  type="text"
-                  value="pagamento@meusite.com"
-                  readOnly
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 select-all"
-                />
-              </div>
+              {produtos.length > 2 && (
+                <div className="flex justify-center mt-8">
+                  <button
+                    onClick={() => setShowAll(prev => !prev)}
+                    className="px-6 py-2 border border-rose-600 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white transition"
+                  >
+                    {showAll ? 'Mostrar menos' : 'Ver mais sugestões'}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+
+          <button
+            type="submit"
+            className="w-full bg-red-900 text-white py-3 rounded-full font-medium hover:bg-red-900 transition"
+          >
+            Cadastrar
+          </button>
+
+          {submitted && (
+            <div className="flex items-center justify-center text-green-600 gap-2 mt-3">
+              <CheckCircleIcon className="h-5 w-5" />
+              <p>Pessoa cadastrada com sucesso!</p>
             </div>
           )}
+        </form>
 
-          {paymentType === 'cartao' && (
-            <div className="space-y-4 animate-fadeIn">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Número do cartão</label>
-                <input
-                  type="text"
-                  placeholder="0000 0000 0000 0000"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-red-900"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Validade</label>
-                  <input
-                    type="text"
-                    placeholder="MM/AA"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-red-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">CVV</label>
-                  <input
-                    type="password"
-                    placeholder="123"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-900 focus:border-red-900"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* Botões de ação */}
-          <div className="space-y-3 pt-2">
-            <button
-              className="w-full flex items-center justify-center gap-2 p-3 bg-red-900 text-white font-semibold rounded-full hover:bg-red-800 shadow-sm transition-all"
-            >
-              Confirmar pagamento
-            </button>
-
-            <Link
-              href={`/cestas/${id}`}
-              className="w-full flex items-center justify-center gap-2 font-semibold p-3 border border-red-900 text-red-900 rounded-full hover:bg-gray-50 transition"
-            >
-              Cancelar
-            </Link>
-          </div>
-
-          {/* Separador */}
-          <div className="flex items-center py-2">
-            <div className="flex-grow border-t border-gray-300"></div>
-            <span className="mx-4 text-gray-500 text-sm font-medium">OU</span>
-            <div className="flex-grow border-t border-gray-300"></div>
-          </div>
-
-          {/* Alternativas de pagamento */}
-          <div className="space-y-3">
-            <button className="w-full flex items-center justify-center gap-3 p-3 border border-gray-300 rounded-full hover:bg-gray-50 font-medium transition">
-              <Image src="/images/google-logo.png" alt="Google Pay" width={24} height={24} />
-              Pagar com Google Pay
-            </button>
-
-            <button className="w-full flex items-center justify-center gap-3 p-3 border border-gray-300 rounded-full hover:bg-gray-50 font-medium transition">
-              <Image src="/images/apple-50.png" alt="Apple Pay" width={24} height={24} />
-              Pagar com Apple Pay
-            </button>
-
-            <button className="w-full flex items-center justify-center gap-3 p-3 border border-green-600 text-green-600 rounded-full hover:bg-green-50 font-medium transition">
-              <Image src="/images/whatsapp.svg" alt="WhatsApp" width={24} height={24} />
-              Finalizar via WhatsApp
-            </button>
-          </div>
-        </div>
       </main>
 
       <Footer />
