@@ -49,7 +49,7 @@ export default function Header() {
     { href: '/cestas', label: 'Cestas' },
     { href: '/cartao', label: 'Cartão' },
     { href: '/carta', label: 'Cartão de mensagem' },
-    { href: '/parcerias', label: 'Parrcerias' },
+    { href: '/parcerias', label: 'Parcerias' },
   ];
 
   return (
