@@ -62,15 +62,15 @@ export default function MeuCartaoPage() {
   }, []);
 
   // Fetcher que pega token fresco a cada chamada
-  const fetcher = useCallback(async (): Promise<CartaoData> => {
-    if (!user) throw new Error('Não autenticado');
+const fetcher = useCallback(async (): Promise<CartaoData> => {
+  if (!user) throw new Error('Não autenticado');
 
-    const freshToken = await getIdToken(user, true);
-    const apiUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/user/cartao`;
-
-    const res = await fetch(apiUrl, {
-      headers: { Authorization: `Bearer ${freshToken}` },
-    });
+  const freshToken = await getIdToken(user, true);
+  
+  // ✅ Use caminho relativo — mesmo domínio
+  const res = await fetch('/api/user/cartao', {
+    headers: { Authorization: `Bearer ${freshToken}` },
+  });
 
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {

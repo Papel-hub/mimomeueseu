@@ -8,7 +8,6 @@ import Footer from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebaseConfig';
-import { useParams } from "next/navigation";
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,10 +34,9 @@ export default function PagamentoPage() {
   const [pixKey, setPixKey] = useState<string | null>(null);
   const [boletoUrl, setBoletoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState<string>('');
-    const params = useParams(); 
-    const id = params.id as string; 
-    const [paymentType, setPaymentType] = useState('');
+  const [email, setEmail] = useState<string>(''); 
+   
+  
 
   useEffect(() => {
     if (cartItems.length === 0) router.push('/carrinho');
