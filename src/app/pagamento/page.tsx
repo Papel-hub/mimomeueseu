@@ -126,7 +126,7 @@ const handleBoletoPayment = async (boletoData: {
           Padamento
         </h1>
         <p className="text-sm text-gray-600 text-center mb-8">
-          Cadastre pessoas especiais
+          Escolha o seu tipo de pagamento
         </p>
 
         <div className="max-w-md mx-auto mb-2 text-center">
