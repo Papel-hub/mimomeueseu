@@ -176,7 +176,7 @@ throw new Error("Falha ao gerar QR Code.");
 
     throw new Error("Método de pagamento não suportado.");
   } catch (error: unknown) {
-    // ✅ Bloco 100% tipado e sem `any`
+    
     let message = "Erro desconhecido.";
 
     if (hasMessage(error)) {

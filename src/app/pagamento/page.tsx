@@ -125,7 +125,7 @@ const handleBoletoPayment = async (boletoData: {
 
         {/* Título */}
         <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">
-          Pessoas que Amo
+          Padamento
         </h1>
         <p className="text-sm text-gray-600 text-center mb-8">
           Cadastre pessoas especiais
