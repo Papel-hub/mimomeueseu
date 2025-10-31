@@ -12,7 +12,7 @@ import { Cesta, CustomizationOption } from '@/types/cesta';
 
 import { useRouter, useParams } from 'next/navigation';
 import MensagemPreview from '../components/MensagemPreview';
-import FormatoSelector, { FormatoTipo } from '../components/FormatoSelector';
+import { FormatoTipo } from '../components/FormatoSelector';
 import MensagemForm from '../components/MensagemForm';
 import BtnCoracao from '../components/BtnCoracao';
 import CartasDoCoracaoSelector from '../components/CartasDoCoracaoSelector';
@@ -44,8 +44,8 @@ export default function MensagemPage() {
   const [isChecked, setIsChecked] = useState(false);
   const [usarCarta, setUsarCarta] = useState(false);
   const [mensagemSelecionada, setMensagemSelecionada] = useState('');
-  const [selectedFormat, setSelectedFormat] = useState<FormatoTipo>('digital');
-  const [prices, setPrices] = useState<Record<FormatoTipo, number>>({
+  const [selectedFormat] = useState<FormatoTipo>('digital');
+  const [prices] = useState<Record<FormatoTipo, number>>({
     digital: 79,
     fisico: 129,
     digital_audio: 149,
