@@ -49,6 +49,7 @@ export default function Header() {
     { href: '/cestas', label: 'Cestas' },
     { href: '/cartao', label: 'Cartão' },
     { href: '/carta', label: 'Cartão de mensagem' },
+    { href:'/experiencias-mimo', label: 'Experiências da Mimo' },
     { href: '/parcerias', label: 'Parcerias' },
   ];
 
@@ -111,6 +112,7 @@ export default function Header() {
                   >
                     Minha conta
                   </Link>
+
                   <Link
                     href="/esposa-feliz"
                     className="block px-4 py-2 text-sm hover:bg-red-50 hover:text-red-900"
@@ -241,6 +243,14 @@ export default function Header() {
               >
                 Minha conta
               </Link>
+                  <Link
+                    href="/experiencias-mimo"
+                    className="block px-3 py-2 rounded-md text-base font-medium
+                    text-gray-700 hover:bg-red-50 hover:text-red-900"
+                    onClick={() => setIsUserMenuOpen(false)}
+                  >
+                    Experiências da Mimo
+                  </Link>
                   <Link
                     href="/esposa-feliz"
                     className="block px-3 py-2 rounded-md text-base font-medium

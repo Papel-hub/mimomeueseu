@@ -23,11 +23,11 @@ export function ListaDesejosSection() {
   return (
     <section className="mb-20">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-3 h-10 bg-[#F4B6B9] rounded-full"></div>
-        <FaGift size={32} className="text-[#F4B6B9]" />
+        <div className="w-3 h-10 bg-rose-200 rounded-full"></div>
+        <FaGift size={32} className="text-rose-200" />
         <h2 className="text-2xl font-semibold">Meu Amor Me Mima</h2>
       </div>
-      <div className="bg-white rounded-2xl p-6 md:p-8 border border-[#F4B6B9]/20 shadow-sm">
+      <div className="bg-white rounded-2xl p-6 md:p-8 border border-rose-200/20 shadow-sm">
         <p className="text-gray-700 mb-6">
           Mostre ao seu parceiro exatamente o que te faria feliz. Crie sua lista de desejos e compartilhe com um clique!
         </p>
@@ -35,13 +35,13 @@ export function ListaDesejosSection() {
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <button
             onClick={handleCopiar}
-            className="flex-1 bg-white border border-[#F4B6B9] text-[#F4B6B9] py-3 rounded-full font-medium hover:bg-[#FDE8E9] transition"
+            className="flex-1 bg-white border border-rose-200 text-rose-200 py-3 rounded-full font-medium hover:bg-rose-50 transition"
           >
             {copiado ? '✓ Copiado!' : 'Copiar link'}
           </button>
           <button
             onClick={handleWhatsApp}
-            className="flex-1 bg-[#25D366] text-white py-3 rounded-full font-medium hover:bg-[#128C7E] transition"
+            className="flex-1 bg-green-600 text-white py-3 rounded-full font-medium hover:bg-green-500 transition"
           >
             Enviar por WhatsApp
           </button>

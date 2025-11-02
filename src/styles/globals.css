@@ -92,7 +92,15 @@ img {
   height: auto;
   border-radius: 0.5rem;
 }
+/* app/globals.css */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 /* Evita que o conteúdo saia da tela em mobile */
 .container,

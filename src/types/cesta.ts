@@ -24,6 +24,7 @@ export interface Cesta {
     cesta?: number;
     maleta?: number;
     bandeja?: number;
+    caixa?: number;
   };
   customizationOptions?: CustomizationOption[];
   mediaPersonalizationFee?: number;

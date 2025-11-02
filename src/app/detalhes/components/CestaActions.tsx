@@ -5,14 +5,14 @@ import { FaShoppingBasket, FaGift } from 'react-icons/fa';
 
 type CestaActionsProps = {
   cestaId: string;
-  selectedFormat: 'cesta' | 'maleta' | 'bandeja';
+  selectedFormat: 'cesta' | 'maleta' | 'bandeja'| 'caixa';
 };
 
 export default function CestaActions({ cestaId, selectedFormat }: CestaActionsProps) {
   const router = useRouter();
 
   const handleEscolherCesta = () => {
-    if (selectedFormat === 'maleta' || selectedFormat === 'bandeja') {
+    if (selectedFormat === 'caixa') {
       // Redireciona para itens-surpresa
       router.push(`/itens-surpresa/${cestaId}`);
     } else {

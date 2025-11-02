@@ -24,7 +24,7 @@ export default function CestaDetailPage() {
   const [loading, setLoading] = useState(true);
   const [mainMedia, setMainMedia] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedFormat, setSelectedFormat] = useState<'cesta' | 'maleta' | 'bandeja'>('cesta');
+  const [selectedFormat, setSelectedFormat] = useState<'cesta' | 'maleta' |'bandeja' | 'caixa'>('cesta');
 
   useEffect(() => {
     if (!id) {
@@ -206,8 +206,8 @@ export default function CestaDetailPage() {
             <div>
               <h2 className="font-semibold text-lg text-gray-800 mb-2">Escolha o formato da cestaria:</h2>
               <div className="flex flex-wrap gap-4">
-                {(['cesta', 'maleta', 'bandeja'] as const).map((format) => {
-                  const label = format === 'cesta' ? 'Cesta' : format === 'maleta' ? 'Maleta' : 'Bandeja';
+                {(['cesta', 'maleta', 'bandeja', 'caixa'] as const).map((format) => {
+                  const label = format === 'cesta' ? 'Cesta' : format === 'maleta' ? 'Maleta' : 'Bandeja'  ;
                   const extra = cesta?.formatOptions?.[format] ?? 0;
                   return (
                     <label

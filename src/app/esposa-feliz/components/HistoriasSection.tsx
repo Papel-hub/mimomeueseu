@@ -15,8 +15,8 @@ export function HistoriasSection() {
   return (
     <section className="mb-20">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-3 h-10 bg-[#F4B6B9] rounded-full"></div>
-        <FaBook size={32} className="text-[#F4B6B9]" />
+        <div className="w-3 h-10 bg-rose-200 rounded-full"></div>
+        <FaBook size={32} className="text-rose-200" />
         <h2 className="text-2xl font-semibold">Histórias de Amor e Superação</h2>
       </div>
       <div className="space-y-6">
@@ -27,7 +27,7 @@ export function HistoriasSection() {
           </div>
         ))}
       </div>
-      <button className="mt-6 text-[#F4B6B9] font-medium hover:underline">
+      <button className="mt-6 text-rose-200 font-medium hover:underline">
         + Ver mais histórias
       </button>
     </section>
