@@ -54,7 +54,7 @@ const GiftCard = ({ title, priceRange, experiences, imageUrl, isFavorite = false
 
       {/* Botão de ação */}
       <div className="px-4 pb-4">
-        <button className="w-full bg-red-900 hover:bg-red-800 text-white py-2 px-2 rounded flex items-center justify-center gap-1 transition text-sm font-medium">
+        <button className="w-full bg-red-900 hover:bg-red-800 text-white py-2 px-2 rounded-full flex items-center justify-center gap-1 transition text-sm font-medium">
           <span>Escolher</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"

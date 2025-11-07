@@ -16,38 +16,40 @@ interface Gift {
   isFavorite: boolean;
 }
 
-const ExperienciasMimoPage = () => {
+export default function ExperienciasMimoPage() { // ✅ Corrigido aqui
   const categories = [
-    { id: 1, name: "Natal 2025" },
-    { id: 2, name: "Condução e Velocidade" },
-    { id: 3, name: "Ação e Adrenalina" },
-    { id: 4, name: "Aventura e Viagem" },
-    { id: 5, name: "Cuidados e Relax" },
-    { id: 6, name: "Workshops" },
-    { id: 7, name: "Presentes Personalizados" },
-    { id: 8, name: "Vouchers Presente" },
-    { id: 9, name: "Sugestões p/ Ar" },
+    { id: 1, link: 'natal', name: "Natal 2025" },
+    { id: 2, link: 'conducao-e-velocidade', name: "Condução e Velocidade" },
+    { id: 3, link: 'acao-e-adrenalina', name: "Ação e Adrenalina" },
+    { id: 4, link: 'aventura-e-viagem', name: "Aventura e Viagem" },
+    { id: 5, link: 'cuidados-e-relax', name: "Cuidados e Relax" },
+    { id: 6, link: 'workshops', name: "Workshops" },
+    { id: 7, link: 'presentes-personalizados', name: "Presentes Personalizados" },
+    { id: 8, link: 'vouchers-presente', name: "Vouchers Presente" },
+    { id: 9, link: 'sugestoes-para-ele', name: "Sugestões para Ela/e" },
   ];
 
   const gifts: Gift[] = [
     {
       id: 1,
       title: "Prendas para Ele",
-      priceRange: "25,00€ - 6329,00€",
+      priceRange: "R$25,00 - R$6329,00",
       experiences: 112,
       imageUrl: "/images/cartaouser.svg",
       isFavorite: true,
     },
+    // Adicione mais gifts conforme necessário
   ];
 
-  const handleCategoryClick = (category: { id: number; name: string }) => {
-    console.log('Categoria clicada:', category.name);
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       <main className="flex-grow sm:px-16 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
+        {/* Menu de categorias */}
+        <section className="mb-8">
+         <CategoryScrollMenu categories={categories} />
+        </section>
 
         {/* Banner de vouchers */}
         <section className="mb-10">
@@ -58,14 +60,6 @@ const ExperienciasMimoPage = () => {
             description="Ofereça a alguém especial a oportunidade de escolher qual dos sonhos quer realizar com um voucher em valor ou um pack com várias experiências à escolha."
             ctaText="Veja as nossas sugestões clicando aqui"
             backgroundImageUrl="/images/cartaouser.svg"
-          />
-        </section>
-
-        {/* Menu de categorias */}
-        <section className="mb-8">
-          <CategoryScrollMenu
-            categories={categories}
-            onCategoryClick={handleCategoryClick}
           />
         </section>
 
@@ -87,6 +81,4 @@ const ExperienciasMimoPage = () => {
       <Footer />
     </div>
   );
-};
-
-export default ExperienciasMimoPage;
+}
