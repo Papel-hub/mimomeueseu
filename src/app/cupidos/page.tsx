@@ -10,7 +10,7 @@ export default function CupidosPage() {
       <Header />
       <main className="flex-grow sm:px-16 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
       {/* Hero Section */}
-      <header className="bg-gradient-to-r from-[#E4B1AE] rounded-xl to-[#DAA520] text-white py-12 px-4 text-center">
+      <header className="bg-red-900 rounded-xl text-white py-12 px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <div className="flex justify-center mb-4">
             <div className="bg-white/20 p-3 rounded-full">

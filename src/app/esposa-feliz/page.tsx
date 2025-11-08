@@ -12,7 +12,7 @@ export default function EsposaFelizPage() {
       <Header />
             <main className="flex-grow sm:px-16 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
       {/* Hero Banner */}
-<header className=" bg-gradient-to-r from-rose-200 to-red-900 relative text-white py-15 px-4 text-center rounded-lg ">
+<header className=" bg-red-900 relative text-white py-15 px-4 text-center rounded-lg ">
     <div  className="mt-4 m-24 ">  
   <Image
     src="/images/esposa.svg"

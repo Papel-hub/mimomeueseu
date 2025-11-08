@@ -28,7 +28,7 @@ export default function CupidoCard({ name, location, services, avatar, whatsapp 
 };
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-[#E4B1AE]/20 hover:shadow-md transition">
+    <div className="bg-white rounded-xl p-4 shadow-sm border border-rose-200/20 hover:shadow-md transition">
       <div className="flex items-center gap-4 mb-3">
         {avatar ? (
           <Image
@@ -39,7 +39,7 @@ export default function CupidoCard({ name, location, services, avatar, whatsapp 
             className="rounded-full object-cover"
           />
         ) : (
-          <div className="w-14 h-14 rounded-full bg-[#E4B1AE]/20 flex items-center justify-center text-[#DAA520] font-bold">
+          <div className="w-14 h-14 rounded-full bg-rose-200/20 flex items-center justify-center text-white font-bold">
             {name.charAt(0)}
           </div>
         )}
@@ -52,7 +52,7 @@ export default function CupidoCard({ name, location, services, avatar, whatsapp 
         {services.map((s) => (
           <span
             key={s}
-            className="px-2 py-1 bg-[#fdf6f4] text-[#DAA520] text-xs rounded-full font-medium"
+            className="px-2 py-1 bg-[#fdf6f4] text-white text-xs rounded-full font-medium"
           >
             {serviceLabels[s]}
           </span>
@@ -63,7 +63,7 @@ export default function CupidoCard({ name, location, services, avatar, whatsapp 
         disabled={!whatsapp}
         className={`w-full py-2 rounded-full text-sm font-medium transition ${
           whatsapp
-            ? 'bg-[#E4B1AE] text-white hover:bg-[#DAA520] cursor-pointer'
+            ? 'bg-rose-200 text-white hover:bg-rose-200 cursor-pointer'
             : 'bg-gray-200 text-gray-500 cursor-not-allowed'
         }`}
       >

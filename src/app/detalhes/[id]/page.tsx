@@ -202,26 +202,52 @@ export default function CestaDetailPage() {
             </div>
             <p className="text-gray-700">{cesta.description}</p>
 
-            {/* Formato */}
-            <div>
-              <h2 className="font-semibold text-lg text-gray-800 mb-2">Escolha o formato da cestaria:</h2>
-              <div className="flex flex-wrap gap-4">
-                {(['cesta', 'maleta', 'bandeja', 'caixa'] as const).map((format) => {
-                  const label = format === 'cesta' ? 'Cesta' : format === 'maleta' ? 'Maleta' : 'Bandeja'  ;
-                  const extra = cesta?.formatOptions?.[format] ?? 0;
-                  return (
-                    <label
-                      key={format}
-                      className={`flex items-center border rounded-lg px-3 py-2 cursor-pointer transition ${selectedFormat === format ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-red-300'}`}
-                    >
-                      <input type="radio" name="format" checked={selectedFormat === format} onChange={() => setSelectedFormat(format)} className="sr-only" />
-                      <span className="text-gray-700 font-medium">{label}</span>
-                      {extra > 0 && <span className="ml-2 text-sm text-green-600">+ R$ {extra.toFixed(2)}</span>}
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+{/* Formato */}
+<div>
+  <h2 className="font-semibold text-lg text-gray-800 mb-2">
+    Escolha o formato da cestaria:
+  </h2>
+  <div className="flex flex-wrap gap-4">
+    {(['cesta', 'maleta', 'bandeja', 'caixa'] as const).map((format) => {
+      const labels: Record<typeof format, string> = {
+        cesta: 'Cesta',
+        maleta: 'Maleta',
+        bandeja: 'Bandeja',
+        caixa: 'Caixa Mimo',
+      };
+
+      const extra = cesta?.formatOptions?.[format] ?? 0;
+
+      return (
+        <label
+          key={format}
+          className={`flex items-center border rounded-lg px-3 py-2 cursor-pointer transition ${
+            selectedFormat === format
+              ? 'border-red-500 bg-red-50'
+              : 'border-gray-300 hover:border-red-300'
+          }`}
+        >
+          <input
+            type="radio"
+            name="format"
+            checked={selectedFormat === format}
+            onChange={() => setSelectedFormat(format)}
+            className="sr-only"
+          />
+          <span className="text-gray-700 font-medium">
+            {labels[format]}
+          </span>
+          {extra > 0 && (
+            <span className="ml-2 text-sm text-green-600">
+              + R$ {extra.toFixed(2)}
+            </span>
+          )}
+        </label>
+      );
+    })}
+  </div>
+</div>
+
 
             <p className="text-2xl font-bold text-red-900">VALOR: R$ {finalPrice.toFixed(2)}</p>
 

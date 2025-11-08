@@ -242,15 +242,7 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Minha conta
-              </Link>
-                  <Link
-                    href="/experiencias-mimo"
-                    className="block px-3 py-2 rounded-md text-base font-medium
-                    text-gray-700 hover:bg-red-50 hover:text-red-900"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    Experiências da Mimo
-                  </Link>
+              </Link> 
                   <Link
                     href="/esposa-feliz"
                     className="block px-3 py-2 rounded-md text-base font-medium
