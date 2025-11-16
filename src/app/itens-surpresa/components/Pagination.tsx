@@ -9,7 +9,6 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
   const pages = Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
     // Mostrar até 5 páginas centradas
     const start = Math.max(1, currentPage - 2);
-    const end = Math.min(totalPages, start + 4);
     return start + i;
   }).filter(page => page <= totalPages);
 

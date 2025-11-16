@@ -1,7 +1,5 @@
 'use client';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Modal } from './ModalWrapper';
 
 export default function DetalhesCartaoModal({

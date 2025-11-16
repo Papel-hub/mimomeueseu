@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 type MensagemFormProps = {
   isChecked: boolean;
   onToggleAnonimo: (checked: boolean) => void;

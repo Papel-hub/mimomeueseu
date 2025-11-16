@@ -63,11 +63,10 @@ export default function ParceriasPage() {
         <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Parcerias</h1>
         <br />
         <p className="text-sm text-gray-600 text-center mb-8">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem, provident sequi accusantium
-          sapiente ducimus distinctio vel voluptate blanditiis eaque neque eum dolore quaerat quam nihil
-          quibusdam, quos ea laudantium placeat. Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-          Ipsa, quae ullam natus corporis voluptates fugiat mollitia laudantium debitis laboriosam sapiente,
-          earum maiores ratione illo aspernatur recusandae magni nemo ad ducimus.
+          A Mimo Meu e Seu está abrindo espaço para parcerias que realmente transformam momentos em memórias inesquecíveis.
+          Se você oferece produtos, serviços ou experiências que despertam emoção, cuidado e encantamento, queremos você ao nosso lado.
+          Nossos clientes procuram presentes que criam histórias — e o seu negócio pode fazer parte de cada uma delas. 
+          Ao se tornar parceiro, seus produtos ou serviços ganham visibilidade, valor agregado e se transformam em experiências únicas dentro de nossas Caixas Mimo e em nossos eventos especiais.
         </p>
 
         <div className="bg-white p-6 max-w-2xl mx-auto mb-12">
