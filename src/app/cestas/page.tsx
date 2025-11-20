@@ -5,54 +5,51 @@ import CestasCard from '@/components/CestaCard';
 import TabButton from '@/components/TabButton';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { db } from '@/lib/firebaseConfig'; // ✅ Importa a instância global do Firestore
+import { db } from '@/lib/firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 import { Product } from '@/types/Product';
 
 export default function CestasPage() {
-  const [activeTab, setActiveTab] = useState('Romance');
+  const [activeTab, setActiveTab] = useState('Todos');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const tabs = ['Romance', 'Família & Amigos', 'Datas Especiais'];
+  const tabs = ['Todos', 'Romance', 'Família & Amigos', 'Datas Especiais'];
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-const snapshot = await getDocs(collection(db, 'cestas'));
+        const snapshot = await getDocs(collection(db, 'cestas'));
 
-const lista = snapshot.docs
-  .map((doc) => {
-    const data = doc.data();
+        const lista = snapshot.docs.map((doc) => {
+          const data = doc.data();
 
-    // Extrai a primeira imagem válida do array, se existir
-    let firstImage = '/images/p1.png'; // fallback padrão
-    if (Array.isArray(data.image) && data.image.length > 0) {
-      // Remove espaços extras e pega a primeira URL válida
-      const cleaned = data.image
-        .map((url: unknown) => (typeof url === 'string' ? url.trim() : ''))
-        .find(url => url.startsWith('http'));
-      if (cleaned) firstImage = cleaned;
-    } else if (typeof data.image === 'string') {
-      // Caso algum documento ainda tenha string (compatibilidade futura)
-      firstImage = data.image.trim();
-    }
+          // Tratamento seguro das imagens
+          let firstImage = '/images/p1.png';
 
-return {
-  id: doc.id,
-  title: typeof data.title === 'string' ? data.title.trim() : undefined,
-  price: typeof data.price === 'number' ? data.price : undefined,
-  rating: typeof data.rating === 'number' ? data.rating : undefined,
-  image: firstImage,
-  category: typeof data.category === 'string' ? data.category.trim() : '', // ← string vazia, não undefined
-  video: typeof data.video === 'string' ? data.video.trim() : undefined,
-  bestseller: data.bestseller === true,
-};
-  })
-  .filter((item) => item.title && item.image); // agora image nunca será undefined
+          if (Array.isArray(data.image)) {
+            const valid = data.image
+              .map((url: unknown) => (typeof url === 'string' ? url.trim() : ''))
+              .find((url) => url.startsWith('http'));
 
-setProducts(lista as Product[]);
+            if (valid) firstImage = valid;
+          } else if (typeof data.image === 'string') {
+            firstImage = data.image.trim();
+          }
 
+          return {
+            id: doc.id,
+            title: typeof data.title === 'string' ? data.title.trim() : 'Sem título',
+            price: typeof data.price === 'number' ? data.price : 0,
+            rating: typeof data.rating === 'number' ? data.rating : 0,
+            image: firstImage,
+            category: typeof data.category === 'string' ? data.category.trim() : 'Outros',
+            video: typeof data.video === 'string' ? data.video.trim() : '',
+            bestseller: data.bestseller === true,
+          };
+        });
+
+        setProducts(lista as Product[]);
       } catch (err) {
         console.error('Erro ao buscar cestas:', err);
       } finally {
@@ -61,9 +58,13 @@ setProducts(lista as Product[]);
     };
 
     fetchProducts();
-  }, []); 
+  }, []);
 
-  const filteredProducts = products.filter((product) => product.category === activeTab);
+  // 🔥 FILTRAGEM FUNCIONAL (agora "Todos" funciona)
+  const filteredProducts =
+    activeTab === 'Todos'
+      ? products
+      : products.filter((product) => product.category === activeTab);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -84,7 +85,7 @@ setProducts(lista as Product[]);
           ))}
         </div>
 
-        {/* Produtos */}
+        {/* Conteúdo */}
         {loading ? (
           <div className="flex justify-center items-center h-80">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-red-600 border-r-transparent"></div>
@@ -95,10 +96,10 @@ setProducts(lista as Product[]);
               <CestasCard
                 key={product.id}
                 id={product.id}
-                title={product.title || 'Sem título'}
+                title={product.title ?? 'Título não disponível'}
                 price={product.price}
                 rating={product.rating}
-                image={product.image || '/images/p1.png'}
+                image={product.image ?? '/images/s1.svg'}
                 bestseller={product.bestseller}
                 showPrice={true}
                 showViewDetails={true}
@@ -111,7 +112,7 @@ setProducts(lista as Product[]);
           </p>
         )}
 
-        {/* Paginação (exemplo visual) */}
+        {/* Paginação (futura) */}
         <div className="flex justify-center mt-10 space-x-2">
           {[1, 2, 3].map((page) => (
             <button

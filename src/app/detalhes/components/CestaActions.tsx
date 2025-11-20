@@ -5,9 +5,9 @@ import { FaShoppingBasket, FaGift } from 'react-icons/fa';
 
 type CestaActionsProps = {
   cestaId: string;
-  selectedFormat: 'cesta' | 'maleta' | 'bandeja'| 'caixa';
-};
-
+  selectedFormat: 'cesta' | 'maleta' | 'bandeja' | 'caixa';
+  onCheckout: () => void; // 👈 ADICIONE ESTA LINHA
+}
 export default function CestaActions({ cestaId, selectedFormat }: CestaActionsProps) {
   const router = useRouter();
 

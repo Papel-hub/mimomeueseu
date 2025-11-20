@@ -1,49 +1,50 @@
-// components/ItemCard.tsx
-'use client';
-
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
-type ItemCardProps = {
-  item: {
-    id: string;
-    nome: string;
-    descricao: string;
-    preco: number;
-    imagem: string;
-  };
-  cestaId: string;
+type Item = {
+  id: string;
+  nome: string;
+  descricao: string;
+  preco: number;
+  imagem: string;
+  categoria: 'produto' | 'servico';
 };
 
-export default function ItemCard({ item, cestaId }: ItemCardProps) {
-  const router = useRouter();
-
-  const handleSelect = () => {
-    // Salvar escolha no localStorage ou Firestore
-    localStorage.setItem(`surpresa_${cestaId}`, JSON.stringify(item));
-    router.push(`/cestas/${cestaId}`); // Voltar para a cesta
-  };
-
+export default function ItemCard({ 
+  item, 
+  onAddToCart 
+}: { 
+  item: Item; 
+  onAddToCart: (item: Item) => void;
+}) {
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 hover:shadow-md transition">
-      <div className="h-48 w-full relative">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <div className="relative">
         <Image
-          src={item.imagem || '/images/placeholder.svg'}
+          src={item.imagem} 
           alt={item.nome}
-          fill
+          width={100}
+          height={32}
           className="object-cover"
         />
+        <div className="absolute top-2 right-2 bg-indigo-100 text-indigo-800 text-xs font-semibold px-2 py-1 rounded-full">
+          {item.categoria === 'produto' ? 'Produto' : 'Serviço'}
+        </div>
       </div>
+      
       <div className="p-4">
-        <h3 className="font-bold text-gray-900">{item.nome}</h3>
-        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.descricao}</p>
-        <div className="mt-3 flex justify-between items-center">
-          <span className="font-semibold text-red-900">R$ {item.preco.toFixed(2)}</span>
+        <h3 className="font-bold text-lg text-gray-800 mb-1">{item.nome}</h3>
+        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{item.descricao}</p>
+        
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold text-red-800">
+            R$ {item.preco.toFixed(2)}
+          </span>
           <button
-            onClick={handleSelect}
-            className="text-sm bg-red-900 text-white px-3 py-1 rounded-full hover:bg-red-800 transition"
+            onClick={() => onAddToCart(item)}
+            className="bg-red-900 hover:bg-red-800 text-white w-10 h-10 rounded-full transition-colors duration-200"
+            aria-label={`Adicionar ${item.nome} ao carrinho`}
           >
-            Selecionar
+            +
           </button>
         </div>
       </div>
