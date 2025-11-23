@@ -14,7 +14,19 @@ export default function CestasPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const tabs = ['Todos', 'Romance', 'Família & Amigos', 'Datas Especiais'];
+  // ✨ Novas categorias conforme sua lista
+  const tabs = [
+    'Todos',
+    'Românticas / Amor e Relacionamentos',
+    'Bebês e Maternidade',
+    'Festividades e Datas Especiais',
+    'Agradecimento / Reconhecimento',
+    'Amizade / Social',
+    'Corporativa / Profissional',
+    'Despedidas / Celebrações de Ciclos',
+    'Saúde e Bem-estar',
+    'Temáticas Especiais',
+  ];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -60,7 +72,7 @@ export default function CestasPage() {
     fetchProducts();
   }, []);
 
-  // 🔥 FILTRAGEM FUNCIONAL (agora "Todos" funciona)
+  // 🔥 FILTRAGEM FUNCIONAL
   const filteredProducts =
     activeTab === 'Todos'
       ? products

@@ -3,7 +3,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEye,
-  faArrowDown,
   faArrowUp,
   faPaperPlane,
 
@@ -32,13 +31,6 @@ export default function AcoesCartao({
       >
         <FontAwesomeIcon icon={faArrowUp} className="w-5 h-5" />
         Depositar
-      </button>
-      <button
-        onClick={() => onAction('Sacar')}
-        className="flex items-center gap-3 px-4 py-3 w-[35%] rounded-full bg-amber-600 text-white font-medium hover:bg-amber-700 transition shadow-sm"
-      >
-        <FontAwesomeIcon icon={faArrowDown} className="w-5 h-5" />
-        Sacar
       </button>
       <button
         onClick={() => onAction('Enviar')}

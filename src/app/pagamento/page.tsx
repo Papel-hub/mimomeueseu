@@ -167,10 +167,8 @@ const handleBoletoPayment = async (boletoData: {
             />
           )}
 
-                          {/* Botões de ação */}
+                {/* Botões de ação */}
                 <div className="space-y-3 pt-2">
-
-      
                   <Link
                     href="/cestas"
                     className="w-full flex items-center justify-center gap-2 font-semibold p-3 border border-red-900 text-red-900 rounded-full hover:bg-gray-50 transition"
@@ -178,9 +176,7 @@ const handleBoletoPayment = async (boletoData: {
                     Cancelar
                   </Link>
                 </div>
-
-
-                          {/* Separador */}
+                {/* Separador */}
                 <div className="flex items-center py-2">
                   <div className="flex-grow border-t border-gray-300"></div>
                   <span className="mx-4 text-gray-500 text-sm font-medium">OU</span>
@@ -189,16 +185,6 @@ const handleBoletoPayment = async (boletoData: {
       
                 {/* Alternativas de pagamento */}
                 <div className="space-y-3">
-                  <button className="w-full flex items-center justify-center gap-3 p-3 border border-gray-300 rounded-full hover:bg-gray-50 font-medium transition">
-                    <Image src="/images/google-logo.png" alt="Google Pay" width={24} height={24} />
-                    Pagar com Google Pay
-                  </button>
-      
-                  <button className="w-full flex items-center justify-center gap-3 p-3 border border-gray-300 rounded-full hover:bg-gray-50 font-medium transition">
-                    <Image src="/images/apple-50.png" alt="Apple Pay" width={24} height={24} />
-                    Pagar com Apple Pay
-                  </button>
-      
                   <button className="w-full flex items-center justify-center gap-3 p-3 border border-green-600 text-green-600 rounded-full hover:bg-green-50 font-medium transition">
                     <Image src="/images/whatsapp.svg" alt="WhatsApp" width={24} height={24} />
                     Finalizar via WhatsApp

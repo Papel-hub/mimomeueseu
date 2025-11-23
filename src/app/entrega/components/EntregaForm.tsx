@@ -1,5 +1,3 @@
-
-//components/EntregaForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +5,6 @@ import EntregaTypeSection from './EntregaTypeSection';
 import DeliveryCalendar from './DeliveryCalendar';
 import DeliveryMethodSection from './DeliveryMethodSection';
 
-// Tipos específicos para cada seção
 type DigitalMethod = 'whatsapp' | 'email';
 type FisicaMethod = 'correios' | 'transportadora' | 'ponto' | 'delivery' | 'uber' | 'taxi';
 type MaoAmigaMethod = 'cupidos' | 'anfitrioes' | 'influencers' | 'parceiros';
@@ -15,14 +12,57 @@ type MaoAmigaMethod = 'cupidos' | 'anfitrioes' | 'influencers' | 'parceiros';
 export default function EntregaForm() {
   const [tipoEntrega, setTipoEntrega] = useState<'digital' | 'fisica' | 'ambos'>('digital');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [digitalMethod, setDigitalMethod] = useState<DigitalMethod>('whatsapp');
-  const [fisicaMethod, setFisicaMethod] = useState<FisicaMethod>('correios');
-  const [maoAmigaMethod, setMaoAmigaMethod] = useState<MaoAmigaMethod>('cupidos');
+
+  const [digitalMethod, setDigitalMethod] = useState<DigitalMethod | null>(null);
+  const [fisicaMethod, setFisicaMethod] = useState<FisicaMethod | null>(null);
+  const [maoAmigaMethod, setMaoAmigaMethod] = useState<MaoAmigaMethod | null>(null);
+
+  // Funções de seleção com regras claras
+  const handleDigitalSelect = (value: DigitalMethod) => {
+    // Ao escolher digital, limpa Mão Amiga (mas mantém físico se estiver em "ambos")
+    setDigitalMethod(value);
+    setMaoAmigaMethod(null);
+  };
+
+  const handleFisicaSelect = (value: FisicaMethod) => {
+    // Ao escolher físico, limpa Mão Amiga (mas mantém digital se estiver em "ambos")
+    setFisicaMethod(value);
+    setMaoAmigaMethod(null);
+  };
+
+  const handleMaoAmigaSelect = (value: MaoAmigaMethod) => {
+    // Ao escolher Mão Amiga, limpa tudo de Digital e Física
+    setMaoAmigaMethod(value);
+    setDigitalMethod(null);
+    setFisicaMethod(null);
+  };
+
+  // Validação para o botão "Continuar"
+  const canContinue = () => {
+    if (maoAmigaMethod) {
+      // Mão Amiga é standalone
+      return true;
+    }
+
+    if (tipoEntrega === 'digital') {
+      return digitalMethod !== null;
+    }
+
+    if (tipoEntrega === 'fisica') {
+      return fisicaMethod !== null;
+    }
+
+    if (tipoEntrega === 'ambos') {
+      return digitalMethod !== null && fisicaMethod !== null;
+    }
+
+    return false;
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-md space-y-6 max-w-xl mx-auto p-6 border border-gray-100">
-<EntregaTypeSection tipoEntrega={tipoEntrega} setTipoEntrega={setTipoEntrega} />
-<DeliveryCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+      <EntregaTypeSection tipoEntrega={tipoEntrega} setTipoEntrega={setTipoEntrega} />
+      <DeliveryCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
 
       {(tipoEntrega === 'digital' || tipoEntrega === 'ambos') && (
         <DeliveryMethodSection<DigitalMethod>
@@ -32,7 +72,7 @@ export default function EntregaForm() {
             { id: 'email', label: 'E-mail' },
           ]}
           selected={digitalMethod}
-          onSelect={setDigitalMethod}
+          onSelect={handleDigitalSelect}
         />
       )}
 
@@ -48,7 +88,7 @@ export default function EntregaForm() {
             { id: 'taxi', label: 'Táxi' },
           ]}
           selected={fisicaMethod}
-          onSelect={setFisicaMethod}
+          onSelect={handleFisicaSelect}
         />
       )}
 
@@ -62,13 +102,14 @@ export default function EntregaForm() {
           { id: 'parceiros', label: 'Parceiros' },
         ]}
         selected={maoAmigaMethod}
-        onSelect={setMaoAmigaMethod}
+        onSelect={handleMaoAmigaSelect}
       />
 
       <div className="space-y-3">
         <button
           type="button"
-          className="w-full flex items-center justify-center gap-2 font-semibold p-3 bg-red-900 text-white rounded-full hover:bg-red-800 transition"
+          disabled={!canContinue()}
+          className="w-full flex items-center justify-center gap-2 font-semibold p-3 bg-red-900 text-white rounded-full hover:bg-red-800 transition disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           Continuar
         </button>
