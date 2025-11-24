@@ -102,7 +102,7 @@ export default function ItensSurpresaPage() {
       <Header />
 
       <main className="flex-grow sm:px-16 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Itens Surpresa</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Itens Disponíveis</h1>
 
         {/* Abas */}
         <div className="flex flex-wrap gap-2 mb-8">

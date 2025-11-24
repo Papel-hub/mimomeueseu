@@ -158,9 +158,9 @@ export default function Header() {
 
             {/* Botão Criar Cesta */}
             <Link 
-            href="/criar-cestas"
+            href="/caixa-mimo"
             className="border border-white flex items-center justify-center gap-2 p-3  transition text-center text-white px-3  text-xs sm:text-sm font-medium rounded-full hover:bg-red-800 whitespace-nowrap">
-              + Criar Cesta
+              Caixa Mimo
             </Link>
 
             {/* Ícone do Carrinho */}

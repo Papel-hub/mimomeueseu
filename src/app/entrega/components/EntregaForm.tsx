@@ -9,6 +9,9 @@ type DigitalMethod = 'whatsapp' | 'email';
 type FisicaMethod = 'correios' | 'transportadora' | 'ponto' | 'delivery' | 'uber' | 'taxi';
 type MaoAmigaMethod = 'cupidos' | 'anfitrioes' | 'influencers' | 'parceiros';
 
+// ✅ Apenas "correios" é válido no momento
+const VALID_FISICA_METHODS: FisicaMethod[] = ['correios'];
+
 export default function EntregaForm() {
   const [tipoEntrega, setTipoEntrega] = useState<'digital' | 'fisica' | 'ambos'>('digital');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -17,30 +20,25 @@ export default function EntregaForm() {
   const [fisicaMethod, setFisicaMethod] = useState<FisicaMethod | null>(null);
   const [maoAmigaMethod, setMaoAmigaMethod] = useState<MaoAmigaMethod | null>(null);
 
-  // Funções de seleção com regras claras
   const handleDigitalSelect = (value: DigitalMethod) => {
-    // Ao escolher digital, limpa Mão Amiga (mas mantém físico se estiver em "ambos")
     setDigitalMethod(value);
     setMaoAmigaMethod(null);
   };
 
   const handleFisicaSelect = (value: FisicaMethod) => {
-    // Ao escolher físico, limpa Mão Amiga (mas mantém digital se estiver em "ambos")
     setFisicaMethod(value);
     setMaoAmigaMethod(null);
   };
 
   const handleMaoAmigaSelect = (value: MaoAmigaMethod) => {
-    // Ao escolher Mão Amiga, limpa tudo de Digital e Física
     setMaoAmigaMethod(value);
     setDigitalMethod(null);
     setFisicaMethod(null);
   };
 
-  // Validação para o botão "Continuar"
+  // ✅ Validação ajustada: só aceita "correios" como método físico válido
   const canContinue = () => {
     if (maoAmigaMethod) {
-      // Mão Amiga é standalone
       return true;
     }
 
@@ -49,15 +47,20 @@ export default function EntregaForm() {
     }
 
     if (tipoEntrega === 'fisica') {
-      return fisicaMethod !== null;
+      return fisicaMethod !== null && VALID_FISICA_METHODS.includes(fisicaMethod);
     }
 
     if (tipoEntrega === 'ambos') {
-      return digitalMethod !== null && fisicaMethod !== null;
+      const hasValidDigital = digitalMethod !== null;
+      const hasValidFisica = fisicaMethod !== null && VALID_FISICA_METHODS.includes(fisicaMethod);
+      return hasValidDigital && hasValidFisica;
     }
 
     return false;
   };
+
+  // ✅ Verifica se um método físico está selecionado, mas não é válido
+  const hasInvalidFisicaSelection = fisicaMethod !== null && !VALID_FISICA_METHODS.includes(fisicaMethod);
 
   return (
     <div className="bg-white rounded-2xl shadow-md space-y-6 max-w-xl mx-auto p-6 border border-gray-100">
@@ -90,6 +93,13 @@ export default function EntregaForm() {
           selected={fisicaMethod}
           onSelect={handleFisicaSelect}
         />
+      )}
+
+      {/* Aviso sutil se método físico não suportado for escolhido */}
+      {hasInvalidFisicaSelection && (
+        <p className="text-sm text-amber-700 bg-amber-50 p-2 rounded-md border border-amber-200">
+          Apenas <strong>Correios</strong> está disponível no momento para entregas físicas.
+        </p>
       )}
 
       <DeliveryMethodSection<MaoAmigaMethod>

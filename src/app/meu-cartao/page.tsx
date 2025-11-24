@@ -144,9 +144,26 @@ const fetcher = useCallback(async (): Promise<CartaoData> => {
 
   if (!cartaoData?.hasCartao) return null;
 
-  const handleAction = (action: string) => {
-    alert(`Ação "${action}" não implementada ainda.`);
-  };
+const handleAction = (action: string) => {
+  switch (action) {
+    case 'visualizar':
+      // Ex: abrir modal de visualização ampliada
+      alert('Visualizar (em desenvolvimento)');
+      break;
+    case 'recarregar':
+      router.push('/recarregar');
+      break;
+    case 'compartilhar':
+      navigator.clipboard.writeText(cartaoData.cardNumber);
+      alert('Número do cartão copiado!');
+      break;
+    case 'solicitar-fisico':
+      router.push('/solicitar-cartao-fisico');
+      break;
+    default:
+      console.warn('Ação desconhecida:', action);
+  }
+};
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -159,7 +176,6 @@ const fetcher = useCallback(async (): Promise<CartaoData> => {
             <CartaoVisual nome={cartaoData.nome} cardNumber={cartaoData.cardNumber} />
             <AcoesCartao
               onShowDetails={() => setShowCardDetails(true)}
-              onShowMore={() => setShowMoreOptions(true)}
               onAction={handleAction}
             />
           </div>
