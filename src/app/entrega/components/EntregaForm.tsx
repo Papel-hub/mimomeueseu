@@ -4,6 +4,9 @@ import { useState } from 'react';
 import EntregaTypeSection from './EntregaTypeSection';
 import DeliveryCalendar from './DeliveryCalendar';
 import DeliveryMethodSection from './DeliveryMethodSection';
+// Adicione este import no topo
+import { useRouter } from 'next/navigation';
+
 
 type DigitalMethod = 'whatsapp' | 'email';
 type FisicaMethod = 'correios' | 'transportadora' | 'ponto' | 'delivery' | 'uber' | 'taxi';
@@ -19,7 +22,23 @@ export default function EntregaForm() {
   const [digitalMethod, setDigitalMethod] = useState<DigitalMethod | null>(null);
   const [fisicaMethod, setFisicaMethod] = useState<FisicaMethod | null>(null);
   const [maoAmigaMethod, setMaoAmigaMethod] = useState<MaoAmigaMethod | null>(null);
+// Dentro do componente EntregaForm
+  const router = useRouter();
 
+const handleContinue = () => {
+  if (!canContinue()) return;
+
+  const deliveryData = {
+    tipoEntrega,
+    selectedDate: selectedDate ? selectedDate.toISOString() : null, // salva como string ISO
+    digitalMethod,
+    fisicaMethod,
+    maoAmigaMethod,
+  };
+
+  localStorage.setItem('deliverySelection', JSON.stringify(deliveryData));
+  router.push('/dados-entrega');
+};
   const handleDigitalSelect = (value: DigitalMethod) => {
     setDigitalMethod(value);
     setMaoAmigaMethod(null);
@@ -118,6 +137,7 @@ export default function EntregaForm() {
       <div className="space-y-3">
         <button
           type="button"
+          onClick={handleContinue} 
           disabled={!canContinue()}
           className="w-full flex items-center justify-center gap-2 font-semibold p-3 bg-red-900 text-white rounded-full hover:bg-red-800 transition disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
