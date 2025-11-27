@@ -97,6 +97,12 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'placehold.co',
       },
+      {
+        protocol: 'https',
+        hostname: 'img.evbuc.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

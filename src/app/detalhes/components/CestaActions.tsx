@@ -31,7 +31,8 @@ export default function CestaActions({ cestaId, selectedFormat }: CestaActionsPr
         Escolher esta cesta
       </button>
 
-      <button className="w-full flex items-center justify-center border border-red-900 text-red-900 font-medium py-3 px-4 rounded-full transition hover:bg-red-50">
+      <button className="w-full flex items-center justify-center border border-red-900 text-red-900
+       font-medium py-3 px-4 rounded-full transition hover:bg-red-50">
         <FaGift className="h-5 w-5 mr-2" aria-hidden="true" />
         Presentear
       </button>
