@@ -5,6 +5,7 @@ import Image from 'next/image';
 import {  Eye } from "lucide-react";
 
 import { FaGift } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 import {
   ShareIcon,
@@ -43,6 +44,8 @@ export default function EventCard({
   onShare,
 }: EventCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
+    const router = useRouter();
+
 
   const getPriceRange = (): string => {
     if (!event.ticket_classes || event.ticket_classes.length === 0) {
@@ -68,7 +71,9 @@ export default function EventCard({
 
   const imageUrl = event.logo?.url || '/images/cartaouser.svg';
 
-  const handleViewDetails = () => onViewDetails?.(event.url);
+  const handleViewDetails = () => {
+    router.push(`/experiencias-mimo/detalhes/${event.id}`);
+  }; 
   const handleAdd = () => onAdd?.(event.id);
   const handleGift = () => onGift?.(event.id);
   const handleShare = () => onShare?.(event.url, event.name.text);
