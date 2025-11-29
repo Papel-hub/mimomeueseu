@@ -60,4 +60,4 @@ export async function GET(
     console.error("Erro inesperado ao buscar evento:", error);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
-}
+} 

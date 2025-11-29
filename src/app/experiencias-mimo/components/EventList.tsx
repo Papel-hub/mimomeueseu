@@ -35,10 +35,6 @@ export default function EventList({ onAdd, onGift }: EventListProps) {
     loadEvents();
   }, []);
 
-  const handleViewDetails = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
   const handleShare = (url: string, title: string) => {
     if (navigator.share) {
       navigator.share({ title, url });
@@ -69,7 +65,6 @@ export default function EventList({ onAdd, onGift }: EventListProps) {
           event={event}
           onAdd={onAdd}
           onGift={onGift}
-          onViewDetails={handleViewDetails}
           onShare={handleShare}
         />
       ))}
