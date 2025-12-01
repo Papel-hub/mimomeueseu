@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { Eye, Plus } from 'lucide-react'; // ✅ Plus importado
+
 
 export interface CestasCardProps {
   id: string;
@@ -57,9 +59,11 @@ const CestasCard = ({
       <div className="px-4 pb-4">
         <Link
           href={`/detalhes/${id}`}
-          className="block w-full text-center bg-red-900 hover:bg-red-800 text-white py-2 px-4 rounded-full font-medium transition-colors"
-        >
-          Ver detalhes
+            className="w-full flex items-center justify-center gap-2 bg-red-900 text-white font-medium py-2.5 px-4 rounded-full hover:bg-red-800 transition focus:outline-none "
+            aria-label="Visualizar detalhes"  
+          >
+            <Eye className="h-4 w-4" aria-hidden="true" />
+            Visualizar detalhes
         </Link>
       </div>
     )}

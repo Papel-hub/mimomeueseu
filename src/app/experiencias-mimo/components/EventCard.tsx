@@ -34,7 +34,6 @@ interface EventCardProps {
 export default function EventCard({
   event,
   onAdd,
-  onGift,
   onShare,
 }: EventCardProps) {
   // ❌ Removido: const [isFavorite, setIsFavorite] = useState(false);
@@ -61,8 +60,11 @@ export default function EventCard({
   const locationLabel = event.online_event ? '📍 Online' : '📍 Presencial';
 
   const handleViewDetails = () => router.push(`/experiencias-mimo/detalhes/${event.id}`);
-  const handleAdd = () => onAdd?.(event.id); // ✅ Sem toggle de estado
-  const handleGift = () => onGift?.(event.id);
+  const handleAdd = () => onAdd?.(event.id); 
+const handlePresentear = () => {
+  router.push(`/presenter/${event.id}`);
+};
+
   const handleShare = () => onShare?.(event.url, event.name.text);
 
   return (
@@ -103,9 +105,8 @@ export default function EventCard({
             <Eye className="h-4 w-4" aria-hidden="true" />
             Visualizar detalhes
           </button>
-
           <button
-            onClick={handleGift}
+          onClick={handlePresentear}
             className="w-full flex items-center justify-center gap-2 border border-red-900 text-red-900 font-medium py-2.5 px-4 rounded-full hover:bg-red-50 transition "
             aria-label="Presentear"
           >

@@ -6,19 +6,11 @@ import CategoryScrollMenu from './components/CategoryScrollMenu';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EventList from './components/EventList';
+import { categories } from './data/categories';
+
 
 export default function ExperienciasMimoPage() {
-  const categories = [
-    { id: 1, link: 'natal', name: 'Natal 2025' },
-    { id: 2, link: 'conducao-e-velocidade', name: 'Condução e Velocidade' },
-    { id: 3, link: 'acao-e-adrenalina', name: 'Ação e Adrenalina' },
-    { id: 4, link: 'aventura-e-viagem', name: 'Aventura e Viagem' },
-    { id: 5, link: 'cuidados-e-relax', name: 'Cuidados e Relax' },
-    { id: 6, link: 'workshops', name: 'Workshops' },
-    { id: 7, link: 'presentes-personalizados', name: 'Presentes Personalizados' },
-    { id: 8, link: 'vouchers-presente', name: 'Vouchers Presente' },
-    { id: 9, link: 'sugestoes-para-ele', name: 'Sugestões para Ela/e' },
-  ];
+
 
   // Opcional: lógica de add/gift (ex: integração com carrinho)
   const handleAdd = (eventId: string) => {
@@ -34,6 +26,7 @@ export default function ExperienciasMimoPage() {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       <main className="flex-grow sm:px-16 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
+        {/* Menu de categorias */}
         <section className="mb-8">
           <CategoryScrollMenu categories={categories} />
         </section>
