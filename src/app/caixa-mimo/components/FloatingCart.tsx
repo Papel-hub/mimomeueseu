@@ -4,15 +4,7 @@ import { faBox, faTimes, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FaBox } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-
-type Item = {
-  id: string;
-  nome: string;
-  descricao: string;
-  preco: number;
-  imagem: string;
-  categoria: 'produto' | 'servico';
-};
+import type { Item } from '@/types/item';
 
 export default function FloatingCart({ 
   cartItems,
@@ -29,17 +21,20 @@ export default function FloatingCart({
 
   const total = cartItems.reduce((sum, item) => sum + item.preco, 0);
 
-  // 🔥 NOVO: salvar no localStorage e ir para detalhes
+  const categoriaLabel = {
+    produto: 'Produto',
+    servico: 'Serviço',
+    experiencia: 'Experiência'
+  };
+
+  // 🔥 Salva no localStorage e retorna para a página anterior
   const handleFinish = () => {
     if (cartItems.length === 0) return;
 
-    // Salvar produtos selecionados
     localStorage.setItem('carrinho_surpresa', JSON.stringify(cartItems));
 
     router.back();
 
-
-    // Opcional: limpar carrinho no estado pai
     onCheckout();
   };
 
@@ -53,6 +48,7 @@ export default function FloatingCart({
       >
         <div className="relative">
           <FontAwesomeIcon icon={faBox} size="lg" />
+
           {cartItems.length > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
               {cartItems.length}
@@ -69,6 +65,7 @@ export default function FloatingCart({
             {/* Header */}
             <div className="p-4 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-800">Itens Surpresa</h2>
+
               <button 
                 onClick={() => setIsOpen(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -86,17 +83,21 @@ export default function FloatingCart({
                   {cartItems.map((item) => (
                     <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <Image
-                        src={item.imagem} 
+                        src={item.imagem}
                         alt={item.nome}
                         className="object-cover rounded-lg"
-                        width={16}
-                        height={16}
+                        width={60}
+                        height={60}
                       />
+
                       <div className="flex-grow">
                         <h3 className="font-semibold text-gray-800">{item.nome}</h3>
-                        <p className="text-sm text-gray-600">{item.categoria === 'produto' ? 'Produto' : 'Serviço'}</p>
+                        <p className="text-sm text-gray-600">
+                          {categoriaLabel[item.categoria]}
+                        </p>
                         <p className="font-bold text-red-800">R$ {item.preco.toFixed(2)}</p>
                       </div>
+
                       <button
                         onClick={() => onRemoveItem(item.id)}
                         className="text-red-500 hover:text-red-700 p-1"
@@ -114,7 +115,9 @@ export default function FloatingCart({
               <div className="p-4 border-t">
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-bold text-lg">Total:</span>
-                  <span className="font-bold text-xl text-red-800">R$ {total.toFixed(2)}</span>
+                  <span className="font-bold text-xl text-red-800">
+                    R$ {total.toFixed(2)}
+                  </span>
                 </div>
 
                 <button

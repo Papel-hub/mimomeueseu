@@ -10,20 +10,13 @@ import Pagination from './components/Pagination';
 import FloatingCart from './components/FloatingCart';
 import { db } from '@/lib/firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import type { Item } from '@/types/item';
 
-type Item = {
-  id: string;
-  nome: string;
-  descricao: string;
-  preco: number;
-  imagem: string;
-  categoria: 'produto' | 'servico';
-};
 
 export default function ItensSurpresaPage() {
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<'Todos' | 'Produtos' | 'Serviços'>('Todos');
+  const [activeTab, setActiveTab] = useState<'Todos' | 'Produtos' | 'Serviços' | 'Experiência da Mimo'>('Todos');
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,21 +28,20 @@ export default function ItensSurpresaPage() {
   // ------------------------------
   useEffect(() => {
 
-
     const fetchItems = async () => {
       setLoading(true);
 
       try {
         let q;
 
-        // 🔥 Lógica corrigida: "Todos" agora busca TODOS
         if (activeTab === 'Todos') {
-          q = query(collection(db, 'itens_surpresa'));
+          q = query(collection(db, 'itens_surpresa')); // busca TUDO
         } else {
-          const categoria =
-            activeTab === 'Produtos'
-              ? 'produto'
-              : 'servico';
+          let categoria;
+
+          if (activeTab === 'Produtos') categoria = 'produto';
+          else if (activeTab === 'Serviços') categoria = 'servico';
+          else categoria = 'experiencia'; // Experiência da Mimo
 
           q = query(
             collection(db, 'itens_surpresa'),
@@ -106,7 +98,7 @@ export default function ItensSurpresaPage() {
 
         {/* Abas */}
         <div className="flex flex-wrap gap-2 mb-8">
-          {(['Todos', 'Produtos', 'Serviços'] as const).map((tab) => (
+          {(['Todos', 'Produtos', 'Serviços', 'Experiência da Mimo'] as const).map((tab) => (
             <TabButton
               key={tab}
               label={tab}

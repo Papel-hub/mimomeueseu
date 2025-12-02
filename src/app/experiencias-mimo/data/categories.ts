@@ -3,7 +3,8 @@ export interface CategoryData {
   link: string;
   name: string;
   description: string;
-  image: string;
+  image: string[];        // AGORA É ARRAY
+  video?: string;         // OPCIONAL
   experienceCount: number;
   priceRange: string;
 }
@@ -15,7 +16,8 @@ export const categories: CategoryData[] = [
     name: 'Viagens & Explorações',
     description:
       'Presentes mágicos para tornar o Natal inesquecível. Escolha entre experiências emocionantes, relaxantes ou personalizadas para surpreender quem ama.',
-    image: '/images/cartaouser.svg',
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
     experienceCount: 48,
     priceRange: '25,00 – 1000,00',
   },
@@ -25,7 +27,8 @@ export const categories: CategoryData[] = [
     name: 'Passeios & Aventuras',
     description:
       'Agarre o volante e acelere numa das nossas experiências de condução e velocidade. Escolha o seu carro super desportivo preferido e realize um sonho.',
-    image: '/images/cartaouser.svg',
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
     experienceCount: 32,
     priceRange: '250,00 – 7200,00',
   },
@@ -35,7 +38,8 @@ export const categories: CategoryData[] = [
     name: 'Esportes & Movimento',
     description:
       'Viva emoções fortes com experiências que desafiam os seus limites: paraquedismo, bungee jumping e muito mais.',
-    image: '/images/cartaouser.svg',
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
     experienceCount: 20,
     priceRange: '99,00 – 3500,00',
   },
@@ -45,8 +49,9 @@ export const categories: CategoryData[] = [
     name: 'Entretenimento & Cultura',
     description:
       'Experiências culturais emocionantes, desde concertos até visitas guiadas exclusivas.',
-    image: '/images/cartaouser.svg',
-    experienceCount: 28,
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
+        experienceCount: 28,
     priceRange: '99,00 – 3500,00',
   },
   {
@@ -55,8 +60,9 @@ export const categories: CategoryData[] = [
     name: 'Networking & Profissões',
     description:
       'Workshops, mentorias e experiências focadas na evolução pessoal e profissional.',
-    image: '/images/cartaouser.svg',
-    experienceCount: 21,
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
+        experienceCount: 21,
     priceRange: '99,00 – 3500,00',
   },
   {
@@ -65,8 +71,8 @@ export const categories: CategoryData[] = [
     name: 'Experiências Afetivas & Especiais',
     description:
       'Momentos únicos para fortalecer laços afetivos com quem você ama.',
-    image: '/images/cartaouser.svg',
-    experienceCount: 16,
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4',     experienceCount: 16,
     priceRange: '99,00 – 3500,00',
   },
   {
@@ -75,8 +81,9 @@ export const categories: CategoryData[] = [
     name: 'Entretenimento Online',
     description:
       'Experiências virtuais incríveis para aproveitar sem sair de casa.',
-    image: '/images/cartaouser.svg',
-    experienceCount: 48,
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
+        experienceCount: 48,
     priceRange: '99,00 – 3500,00',
   },
   {
@@ -85,8 +92,9 @@ export const categories: CategoryData[] = [
     name: 'Conhecimento & Profissões',
     description:
       'Cursos, formações e experiências educativas para expandir horizontes.',
-    image: '/images/skydiving.jpg',
-    experienceCount: 48,
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
+        experienceCount: 48,
     priceRange: '99,00 – 3500,00',
   },
   {
@@ -95,9 +103,9 @@ export const categories: CategoryData[] = [
     name: 'Experiências Afetivas Virtuais',
     description:
       'Conexões especiais em formato digital, perfeitas para longas distâncias.',
-    image: '/images/cartaouser.svg',
-
-    experienceCount: 48,
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
+        experienceCount: 48,
     priceRange: '99,00 – 3500,00',
   },
   {
@@ -106,8 +114,9 @@ export const categories: CategoryData[] = [
     name: 'Saúde, Bem-estar & Lifestyle',
     description:
       'Relaxamento, saúde e cuidados pessoais para transformar rotinas.',
-    image: '/images/cartaouser.svg',
-    experienceCount: 48,
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
+        experienceCount: 48,
     priceRange: '99,00 – 3500,00',
   },
   {
@@ -116,8 +125,9 @@ export const categories: CategoryData[] = [
     name: 'Conexões & Diversão',
     description:
       'Momentos leves, divertidos e perfeitos para criar novas memórias.',
-    image: '/images/cartaouser.svg',
-    experienceCount: 48,
+    image: ['/images/cartaouser.svg','/images/cartaouser.svg',],
+    video: '/videos/g.mp4', 
+        experienceCount: 48,
     priceRange: '99,00 – 3500,00',
   },
 ];
