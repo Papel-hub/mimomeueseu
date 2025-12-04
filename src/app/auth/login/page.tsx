@@ -124,6 +124,7 @@ const handleLogin = async (e: React.FormEvent) => {
             />
           ))}
         </div>
+        
       </div>
 
       {/* Lado direito - Formulário */}

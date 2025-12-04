@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import HeaderCont from '@/components/HeaderCont';
+import { FileText } from "lucide-react";
+
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+import Link from 'next/link';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { app } from '@/lib/firebaseConfig';
 
@@ -59,15 +62,15 @@ export default function ContaPage() {
       <HeaderCont />
 
       <main className="flex-grow sm:px-16 px-8 pt-24 pb-8 sm:pt-28 sm:pb-12">
-        {/* Cabeçalho da página */}
+        {/* Título */}
         <div className="flex items-center gap-3 mb-6">
-          <h1 className="text-xl font-bold text-gray-900">Conta</h1>
+          <h1 className="text-xl font-bold text-gray-900">Minha Conta</h1>
         </div>
 
-        {/* Cartão principal */}
+        {/* Cartão */}
         <div className="bg-white rounded-xl shadow-sm p-6 space-y-6 mx-auto">
 
-          {/* Foto de perfil */}
+          {/* Foto + dados básicos */}
           <div className="flex items-center gap-4 mb-6">
             <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-200 shadow-sm">
               <Image
@@ -86,33 +89,46 @@ export default function ContaPage() {
             </div>
           </div>
 
-          {/* Abas */}
-          <div className="flex border-b border-gray-200 mb-6">
-            <button
-              className={`px-4 py-2 font-medium relative ${
-                activeTab === 'dados' ? 'text-red-700' : 'text-gray-500'
-              }`}
-              onClick={() => setActiveTab('dados')}
-            >
-              Dados da Conta
-              {activeTab === 'dados' && (
-                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-red-700"></div>
-              )}
-            </button>
-            <button
-              className={`px-4 py-2 font-medium relative ${
-                activeTab === 'historico' ? 'text-red-700' : 'text-gray-500'
-              }`}
-              onClick={() => setActiveTab('historico')}
-            >
-              Histórico de Pedidos
-              {activeTab === 'historico' && (
-                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-red-700"></div>
-              )}
-            </button>
+          {/* Abas + botão Documentação */}
+          <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-6">
+
+            {/* Abas */}
+            <div className="flex space-x-6">
+              <button
+                className={`px-4 py-2 font-medium relative ${
+                  activeTab === 'dados' ? 'text-red-700' : 'text-gray-500'
+                }`}
+                onClick={() => setActiveTab('dados')}
+              >
+                Dados da Conta
+                {activeTab === 'dados' && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-red-700"></div>
+                )}
+              </button>
+
+              <button
+                className={`px-4 py-2 font-medium relative ${
+                  activeTab === 'historico' ? 'text-red-700' : 'text-gray-500'
+                }`}
+                onClick={() => setActiveTab('historico')}
+              >
+                Histórico de Pedidos
+                {activeTab === 'historico' && (
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-red-700"></div>
+                )}
+              </button>
+            </div>
+
+<Link
+  href="/doc"
+  className="px-5 py-2 rounded-lg bg-red-900 text-white text-sm font-semibold shadow-sm hover:bg-red-800 transition flex items-center gap-2"
+>
+  <FileText size={18} className="text-white" />
+  Documentação
+</Link>
           </div>
 
-          {/* Conteúdo da aba */}
+          {/* Área da aba */}
           {activeTab === 'dados' && (
             <div className="space-y-5">
               {/* Nome */}
@@ -128,7 +144,7 @@ export default function ContaPage() {
                 />
               </div>
 
-              {/* E-mail */}
+              {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   E-mail
@@ -159,18 +175,16 @@ export default function ContaPage() {
                 </div>
               </div>
 
-              {/* Endereços (placeholder, pode puxar do Firestore depois) */}
+              {/* Endereços */}
               <h2 className="text-lg font-bold text-gray-900 mt-6 mb-3">
                 Endereços Salvos
               </h2>
-              <div>
-                <input
-                  type="text"
-                  value="Nenhum endereço cadastrado"
-                  readOnly
-                  className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-                />
-              </div>
+              <input
+                type="text"
+                value="Nenhum endereço cadastrado"
+                readOnly
+                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+              />
             </div>
           )}
 
