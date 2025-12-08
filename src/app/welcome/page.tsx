@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function WelcomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -10,14 +9,32 @@ export default function WelcomePage() {
   const [showWarning, setShowWarning] = useState(false);
 
   const carouselImages = ["/images/1.svg", "/images/2.svg", "/images/3.svg"];
+  const docs = [
+    {
+      title: "Política de Privacidade",
+      file: "/docs/politica-privacidade.pdf",
+    },
+    {
+      title: "Termos de Uso e Condições",
+      file: "/docs/termos-uso.pdf",
+    },
+    {
+      title: "Política de Consumo de Bebidas Alcoólicas",
+      file: "/docs/politica-bebidas.pdf",
+    },
+    {
+      title: "Regras de Vendas e Entregas",
+      file: "/docs/regras-entregas.pdf",
+    },
+  ];
 
-  // Auto-avanço
+  // Auto-avanço do carrossel
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
     }, 3000);
     return () => clearInterval(timer);
-  }, []);
+  }, [carouselImages.length]);
 
   // Função de navegação segura
   const safeNavigate = (url: string) => {
@@ -30,7 +47,7 @@ export default function WelcomePage() {
 
   return (
     <div className="flex min-h-screen bg-white">
-      {/* ESQUERDA */}
+      {/* ESQUERDA - Carrossel */}
       <div className="hidden md:flex md:w-1/2 bg-red-900 flex-col items-center justify-center p-8 text-white relative overflow-hidden">
         <div className="absolute top-8 left-1/2 -translate-x-1/2">
           <Image
@@ -42,7 +59,7 @@ export default function WelcomePage() {
           />
         </div>
 
-        {/* Carrossel */}
+        {/* Carrossel de imagens */}
         <div className="relative w-3/4 max-w-xs aspect-square rounded-full overflow-hidden shadow-xl mt-12">
           {carouselImages.map((img, index) => (
             <div
@@ -61,7 +78,7 @@ export default function WelcomePage() {
           ))}
         </div>
 
-        {/* Indicadores */}
+        {/* Indicadores do carrossel */}
         <div className="absolute bottom-8 flex space-x-2">
           {carouselImages.map((_, index) => (
             <button
@@ -74,29 +91,9 @@ export default function WelcomePage() {
             />
           ))}
         </div>
-
-        {/* Links */}
-        <ul className="mt-6 text-sm space-y-4 items-center justify-center max-w-md w-full text-[#FCE1D0]">
-          <li>
-            <Link href="/doc" className="hover:underline">• Política de Privacidade</Link>
-          </li>
-          <li>
-            <Link href="/doc" className="hover:underline">• Termos de Uso e Condições</Link>
-          </li>
-          <li>
-            <Link href="/doc" className="hover:underline">
-              • Política de consumo de bebidas alcoólicas
-            </Link>
-          </li>
-          <li>
-            <Link href="/doc" className="hover:underline">
-              • Regras de vendas e entregas
-            </Link>
-          </li>
-        </ul>
       </div>
 
-      {/* DIREITA */}
+      {/* DIREITA - Conteúdo e formulário */}
       <div className="w-full md:w-1/2 flex flex-col justify-center p-6 md:p-12">
         <div className="max-w-md mx-auto space-y-6">
           <div>
@@ -109,10 +106,11 @@ export default function WelcomePage() {
             <strong className="text-red-900"> Surpreenda quem você ama!</strong>
           </p>
 
-          {/* BOTÕES */}
+          {/* Botões de ação */}
           <div className="space-y-4">
             <button
               onClick={() => safeNavigate("/auth/login")}
+              disabled={!agreed}
               className={`w-full py-4 rounded-full font-semibold transition shadow-sm ${
                 agreed
                   ? "bg-red-900 text-[#FCE1D0] hover:bg-red-800"
@@ -124,6 +122,7 @@ export default function WelcomePage() {
 
             <button
               onClick={() => safeNavigate("/home")}
+              disabled={!agreed}
               className={`w-full py-4 rounded-full font-semibold border transition ${
                 agreed
                   ? "border-red-900 text-red-900 hover:bg-red-50"
@@ -134,26 +133,43 @@ export default function WelcomePage() {
             </button>
           </div>
 
-          {/* CHECKBOX */}
-          <div className="flex items-center gap-3">
+          {/* Checkbox de concordância */}
+          <div className="flex items-start gap-3">
             <input
               type="checkbox"
+              id="agreement"
               checked={agreed}
               onChange={(e) => {
                 setAgreed(e.target.checked);
                 setShowWarning(false);
               }}
-              className="h-5 w-5 text-red-900"
+              className="mt-1 h-5 w-5 text-red-900 rounded focus:ring-red-700"
             />
-            <span className="text-sm text-gray-700">
+            <label htmlFor="agreement" className="text-sm text-gray-700">
               Li e concordo com todas as políticas e termos.
-            </span>
+            </label>
           </div>
 
-          {/* AVISO */}
+          {/* Links para documentos */}
+          <ul className="mt-4 text-sm space-y-2">
+            {docs.map((doc, index) => (
+              <li key={index}>
+                <a
+                  href={doc.file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-red-900 hover:underline flex items-center gap-1"
+                >
+                  • {doc.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          {/* Aviso de concordância obrigatória */}
           {showWarning && (
             <p className="text-red-600 text-sm font-semibold">
-              Você deve concordar antes de continuar.
+              Você deve concordar com os termos antes de continuar.
             </p>
           )}
         </div>

@@ -159,7 +159,7 @@ export default function ParceriasPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Contato</label>
                       <PhoneInput
-                        country={'ao'}
+                        country={'br'}
                         value={contato}
                         onChange={(value) => setContato(value)}
                         inputProps={{
@@ -189,6 +189,9 @@ export default function ParceriasPage() {
                         placeholder="Ex: Flores"
                         required
                       />
+                    </div>
+                    <div className="border rounded-lg py-10 items-center justify-center bg-gray-400">
+                      video de publicidade
                     </div>
 
                     <button
