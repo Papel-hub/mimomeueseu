@@ -4,7 +4,7 @@ import React from 'react';
 
 const ModelViewerWrapper = () => {
   return React.createElement('model-viewer', {
-    src: '/models/flower.glb',
+    src: '/models/mimo.glb',
     alt: 'Visualização 3D do produto',
     ar: true,
     'ar-modes': 'webxr scene-viewer quick-look',

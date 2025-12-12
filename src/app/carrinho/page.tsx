@@ -39,13 +39,7 @@ export default function CarrinhoPage() {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Seu carrinho está vazio</h2>
-              <p className="text-gray-600 mb-6">Adicione cestas para continuar sua compra.</p>
-              <button
-                onClick={() => router.push("/cestas")}
-                className="bg-red-900 text-white px-6 py-3 rounded-full font-medium shadow hover:bg-red-800 transition"
-              >
-                Ver cestas
-              </button>
+              <p className="text-gray-600 mb-6">Adicione cestas/mensagem/ experiencias para continuar sua compra.</p> 
             </div>
           </div>
         </main>

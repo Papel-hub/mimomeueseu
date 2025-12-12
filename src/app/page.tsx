@@ -1,48 +1,53 @@
+// src/app/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "@/lib/firebaseConfig";
+import dynamic from "next/dynamic";
+
+// Carrega o componente apenas no cliente, sem SSR
+const ModelViewerWrapper = dynamic(
+  () => import("@/components/ModelViewerWrapper"),
+  { ssr: false }
+);
 
 export default function HomePage() {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [modelLoaded, setModelLoaded] = useState(false);
+  const [redirectDone, setRedirectDone] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  const handleModelLoaded = () => {
+    setModelLoaded(true);
+  };
+
   useEffect(() => {
-    if (!isClient) return;
+    if (!modelLoaded || !isClient || redirectDone) return;
 
-    const auth = getAuth(app);
-
-    // Escuta mudanças de autenticação
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // ✅ Usuário logado → vai direto para /home
-        router.replace("/home");
-      } else {
-        // ❌ Usuário não logado → verifica tipo de dispositivo
-        const width = window.innerWidth;
-
-        if (width < 768) {
-          router.replace("/welcome/mobile");
+    const animationDuration = 3000; // ajuste conforme sua animação
+    const timer = setTimeout(() => {
+      const auth = getAuth(app);
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const width = typeof window !== "undefined" ? window.innerWidth : 0;
+        if (user) {
+          router.replace("/home");
         } else {
-          router.replace("/welcome");
+          router.replace(width < 768 ? "/welcome/mobile" : "/welcome");
         }
-      }
+        setRedirectDone(true);
+        unsubscribe();
+      });
+    }, animationDuration);
 
-      setIsCheckingAuth(false);
-    });
+    return () => clearTimeout(timer);
+  }, [modelLoaded, isClient, router, redirectDone]);
 
-    return () => unsubscribe();
-  }, [isClient, router]);
-
-  // Enquanto verifica login, evita piscar tela
-  if (isCheckingAuth) return null;
-
-  return null;
+  // Enquanto carrega, mostra o model viewer (só no cliente)
+  return <ModelViewerWrapper onLoaded={handleModelLoaded} />;
 }
