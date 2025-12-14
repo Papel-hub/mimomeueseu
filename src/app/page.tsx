@@ -46,7 +46,7 @@ export default function HomePage() {
       <video
         ref={videoRef}
         src="/videos/splash_safe.mp4" // 👈 usa a versão segura
-        
+        muted
         playsInline
         preload="auto"
         className="max-w-full max-h-full object-contain"
