@@ -15,7 +15,6 @@ import type { Item } from '@/types/item';
 
 export default function ItensSurpresaPage() {
   const router = useRouter();
-
   const [activeTab, setActiveTab] = useState<'Todos' | 'Produtos' | 'Serviços' | 'Experiência da Mimo'>('Todos');
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,6 +80,8 @@ export default function ItensSurpresaPage() {
   const handleCheckout = () => {
     setCartItems([]);
   };
+
+
 
   // ------------------------------
   // Paginação
