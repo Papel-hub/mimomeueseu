@@ -1,53 +1,56 @@
 // src/app/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "@/lib/firebaseConfig";
-import dynamic from "next/dynamic";
-
-// Carrega o componente apenas no cliente, sem SSR
-const ModelViewerWrapper = dynamic(
-  () => import("@/components/ModelViewerWrapper"),
-  { ssr: false }
-);
 
 export default function HomePage() {
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
-  const [modelLoaded, setModelLoaded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [redirectDone, setRedirectDone] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const handleModelLoaded = () => {
-    setModelLoaded(true);
-  };
-
-  useEffect(() => {
-    if (!modelLoaded || !isClient || redirectDone) return;
-
-    const animationDuration = 3000; // ajuste conforme sua animação
-    const timer = setTimeout(() => {
+    const handleVideoEnd = () => {
       const auth = getAuth(app);
       const unsubscribe = onAuthStateChanged(auth, (user) => {
-        const width = typeof window !== "undefined" ? window.innerWidth : 0;
+        const isMobile = window.innerWidth < 768;
+
         if (user) {
           router.replace("/home");
         } else {
-          router.replace(width < 768 ? "/welcome/mobile" : "/welcome");
+          router.replace(isMobile ? "/welcome/mobile" : "/welcome");
         }
+
         setRedirectDone(true);
         unsubscribe();
       });
-    }, animationDuration);
+    };
 
-    return () => clearTimeout(timer);
-  }, [modelLoaded, isClient, router, redirectDone]);
+    const video = videoRef.current;
+    if (video) {
+      video.play().catch(() => {});
+      video.addEventListener("ended", handleVideoEnd);
+    }
 
-  // Enquanto carrega, mostra o model viewer (só no cliente)
-  return <ModelViewerWrapper onLoaded={handleModelLoaded} />;
+    return () => {
+      if (video) video.removeEventListener("ended", handleVideoEnd);
+    };
+  }, [router]);
+
+  if (redirectDone) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-white flex items-center justify-center">
+      <video
+        ref={videoRef}
+        src="/videos/splash_safe.mp4" // 👈 usa a versão segura
+        
+        playsInline
+        preload="auto"
+        className="max-w-full max-h-full object-contain"
+      />
+    </div>
+  );
 }
