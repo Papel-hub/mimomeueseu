@@ -86,7 +86,7 @@ export default function Header() {
             <div className="relative hidden sm:flex items-center" ref={userMenuRef}>
               <div className="w-9 h-9 rounded-full overflow-hidden border border-white shadow-sm">
                   <Image
-                    src={user?.photoURL || 'https://www.gravatar.com/avatar/?d=mp&s=100'}
+                    src={user?.photoURL || '/images/avatar.jpg'}
                     alt="Avatar"
                     width={36}
                     height={36}

@@ -43,6 +43,12 @@ const nextConfig = {
 
       // Imgur
       { protocol: 'https', hostname: 'i.imgur.com' },
+      {
+        protocol: 'https',
+        hostname: 'mimomeueseu.com',
+        port: '',
+        pathname: '/uploads/**',
+      },
 
       // Outros domínios que você usa
       { protocol: 'https', hostname: 'placehold.co' },
