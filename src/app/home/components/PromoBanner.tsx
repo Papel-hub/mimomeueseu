@@ -7,7 +7,6 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { collection, getDocs, query } from 'firebase/firestore'; // 'query' adicionado
 import { db } from '@/lib/firebaseConfig';
 
-// Definindo a interface para melhor suporte ao TypeScript
 interface Banner {
   id: string;
   imageUrl: string;
@@ -75,16 +74,14 @@ export default function PromoBanner() {
   return (
     <section className="relative w-full mb-8 group">
       {/* Container Principal da Imagem */}
-{/* Container Principal: Mantém a proporção 1280/490 */}
 <div className="relative w-full aspect-[1280/490] rounded-2xl overflow-hidden shadow-lg group">
   {banners[currentSlide]?.imageUrl ? (
     <Image
       src={banners[currentSlide].imageUrl}
       alt={`Banner promocional ${currentSlide + 1}`}
       fill
-      className="object-cover transition-transform duration-700 group-hover:scale-105"
+      className="object-cover transition-transform group-hover:scale-105"
       priority
-      sizes="100vw"
     />
   ) : (
     <div className="w-full h-full bg-gray-300 flex items-center justify-center">
@@ -99,7 +96,7 @@ export default function PromoBanner() {
       className="bg-white text-red-900 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-bold shadow-xl 
                  hover:bg-red-50 transition-all duration-300 transform 
                  hover:-translate-y-1 active:scale-95 
-                 animate-bounce-subtle"
+                 animate-bounce-subtle animate-pulse"
     >
       Compre Agora
     </Link>

@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Eye, Plus } from 'lucide-react'; // ✅ Plus importado
+import { Eye, Plus } from 'lucide-react'; 
 
 
 export interface CestasCardProps {
   id: string;
   title: string;
   price?: number;
-  rating?: number; // ✅ adicione esta linha
+  rating?: number;
   image: string;
   bestseller?: boolean;
   showPrice?: boolean;
@@ -21,11 +21,11 @@ const CestasCard = ({
   title,
   price,
   image,
-  bestseller, // ✅ desestruturado
+  bestseller, 
   showPrice = true,
-  showViewDetails = false,
+  showViewDetails = true,
 }: CestasCardProps) => (
-  <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden relative">
+  <div className="bg-white rounded-xl p-2 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden relative">
     <Link href={`/detalhes/${id}`} className="block">
       {/* Badge "Mais Vendido" */}
       {bestseller && (
@@ -33,13 +33,13 @@ const CestasCard = ({
           MAIS VENDIDO
         </div>
       )}
-      <div className="h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+      <div className="h-48 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
         <Image
           src={image}
           alt={title || 'Produto sem título'}
           width={300}
-          height={200}
-          className="object-cover w-full h-full transition-transform duration-500"
+          height={192}
+          className="object-cover w-full h-full rounded-xl transition-transform duration-500"
         />
       </div>
       <div className="p-4">
@@ -47,7 +47,7 @@ const CestasCard = ({
           {title}
         </h3>
         {showPrice && price !== undefined && (
-          <p className="text-xl font-bold text-black mt-2">
+          <p className="text-lg font-bold text-black">
             R$ {price.toFixed(2)}
           </p>
         )}
@@ -63,7 +63,7 @@ const CestasCard = ({
             aria-label="Visualizar detalhes"  
           >
             <Eye className="h-4 w-4" aria-hidden="true" />
-            Visualizar detalhes
+            Detalhes
         </Link>
       </div>
     )}

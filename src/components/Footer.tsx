@@ -1,6 +1,5 @@
 
 import {
-  FaFacebook,
   FaInstagram,
 } from "react-icons/fa";
 

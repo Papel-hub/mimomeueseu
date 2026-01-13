@@ -4,7 +4,7 @@ import useSWR from 'swr';
 import Link from 'next/link';
 import { collection, getDocs, query, limit, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebaseConfig';
-import CestasCard from '@/components/CestaCard';
+import CestasCard from './components/CestaCard';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PromoBanner from './components/PromoBanner';
@@ -15,7 +15,9 @@ const CardSkeleton = () => (
   <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-pulse">
     <div className="w-full h-48 bg-gray-200 rounded-lg mb-4" />
     <div className="h-5 bg-gray-200 rounded w-3/4 mb-3" />
-    <div className="h-4 bg-gray-200 rounded w-1/2" />
+    <div className="h-4 bg-gray-200 rounded w-1/2 mb-3" />
+    <div className="h-5 bg-gray-200 rounded w-3/4" />
+
   </div>
 );
 
@@ -110,7 +112,7 @@ export default function HomePage() {
                   image={produto.image || '/images/placeholder.png'}
                   bestseller={produto.bestseller} 
                   showPrice={true}         
-                  showViewDetails={false}   
+                  showViewDetails={true}   
                 />
               ))
             )}
@@ -122,7 +124,7 @@ export default function HomePage() {
           <div className="mt-12 text-center">
             <Link 
               href="/cestas"
-              className="inline-block px-8 py-3 bg-white border border-red-600 text-red-600 rounded-full font-semibold hover:bg-red-600 hover:text-white transition-all shadow-sm"
+              className="inline-block px-8 py-3 bg-white border border-red-900 text-red-900 rounded-full font-semibold hover:bg-red-100 hover:text-red-800 transition-all shadow-sm"
             >
               Ver todas as cestas →
             </Link>
